@@ -34,18 +34,18 @@ prenotazione_pdl/
 ## 3. Fasi di Esecuzione
 
 ### Fase 1: Setup Ambiente
-1. [ ] Creazione repository GitHub.
-2. [ ] Inizializzazione Git locale.
-3. [ ] Creazione `pyproject.toml` basato su `ISAB_TimeSheet`.
-4. [ ] Creazione struttura directory `src/`.
+1. [x] Creazione repository GitHub.
+2. [x] Inizializzazione Git locale.
+3. [x] Creazione `pyproject.toml` basato su `ISAB_TimeSheet`.
+4. [x] Creazione struttura directory `src/`.
 
 ### Fase 2: Estrazione Moduli
-1. [ ] **Config**: Spostare `Config` in `src/prenotazione_pdl/config.py`.
-2. [ ] **Models**: Spostare `PDLData` e eccezioni in `src/prenotazione_pdl/models.py`.
-3. [ ] **Excel**: Rifattorizzare `ExcelProcessor` in `src/prenotazione_pdl/excel/processor.py`.
-4. [ ] **WebDriver**: Rifattorizzare `WebDriverManager` in `src/prenotazione_pdl/automation/driver.py`.
-5. [ ] **Automation**: Rifattorizzare `SafeWorkAutomator` in `src/prenotazione_pdl/automation/actions.py`.
-6. [ ] **Orchestrator**: Rifattorizzare `PDLOrchestrator` e `main` in `src/prenotazione_pdl/main.py`.
+1. [x] **Config**: Spostare `Config` in `src/prenotazione_pdl/config.py`.
+2. [x] **Models**: Spostare `PDLData` e eccezioni in `src/prenotazione_pdl/models.py`.
+3. [x] **Excel**: Rifattorizzare `ExcelProcessor` in `src/prenotazione_pdl/excel/processor.py`.
+4. [x] **WebDriver**: Rifattorizzare `WebDriverManager` in `src/prenotazione_pdl/automation/driver.py`.
+5. [x] **Automation**: Rifattorizzare `SafeWorkAutomator` in `src/prenotazione_pdl/automation/actions.py`.
+6. [x] **Orchestrator**: Rifattorizzare `PDLOrchestrator` e `main` in `src/prenotazione_pdl/main.py`.
 
 ### Fase 3: Qualità e Validazione
 1. [ ] Esecuzione `ruff check` e `ruff format`.
@@ -55,4 +55,4 @@ prenotazione_pdl/
 5. [ ] Esecuzione test (se presenti/creati).
 
 ### Fase 4: Consegna
-1. [ ] Push iniziale sul nuovo repository GitHub.
+1. [x] Push iniziale sul nuovo repository GitHub.

@@ -1,0 +1,61 @@
+# SafeWork Prenotazione PDL (Refactored)
+
+Automazione professionale per la prenotazione dei Piani di Lavoro (PDL) sul portale SafeWork ISAB.
+
+## 🚀 Panoramica
+Questa è la versione rifattorizzata e modulare dello script originale, progettata per essere robusta, tipizzata e facilmente manutenibile.
+
+### Caratteristiche principali
+- **Architettura Modulare**: Separazione netta tra logica Selenium, gestione Excel e orchestrazione.
+- **Qualità Enterprise**: Configurazione completa per `ruff`, `mypy`, `interrogate`, `xenon` e `radon`.
+- **Robustezza**: Gestione avanzata dei timeout del sito e ripristino automatico delle sessioni browser.
+- **Persistenza**: Salvataggio dello stato di avanzamento per riprendere l'elaborazione in caso di interruzioni.
+
+## 🛠️ Installazione
+Il progetto utilizza **Poetry** per la gestione delle dipendenze.
+
+```bash
+# Installa le dipendenze
+poetry install
+
+# Oppure via pip
+pip install -r requirements.txt
+```
+
+## 📖 Utilizzo
+L'entry point principale è `src/prenotazione_pdl/main.py`.
+
+```bash
+# Esecuzione standard
+python src/prenotazione_pdl/main.py
+
+# Esecuzione in modalità simulazione (senza salvare sul sito)
+python src/prenotazione_pdl/main.py --dry-run
+
+# Richiesta password interattiva (più sicuro)
+python src/prenotazione_pdl/main.py --secure
+```
+
+## 💎 Qualità del Codice
+Per eseguire i controlli di qualità:
+
+```bash
+# Linter e Formatter
+ruff check src
+ruff format src
+
+# Type checking
+mypy src
+
+# Documentazione
+interrogate src
+```
+
+## 🏗️ Struttura Progetto
+- `src/prenotazione_pdl/`: Codice sorgente.
+  - `automation/`: Driver Selenium e azioni sul portale.
+  - `excel/`: Lettura parametri ed esecuzione macro.
+  - `config.py`: Costanti e selettori.
+  - `models.py`:strutture dati ed eccezioni.
+- `tests/`: Suite di test (pytest).
+- `REFACTORING_PLAN.md`: Dettagli tecnici della rifattorizzazione.
