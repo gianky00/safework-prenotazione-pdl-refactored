@@ -51,6 +51,13 @@ mypy src
 interrogate src
 ```
 
+## 💎 Interfaccia Utente & Grafica
+L'applicazione vanta un'interfaccia CLI moderna e professionale basata sulla libreria **Rich**, allineata agli standard estetici degli strumenti RPA SafeWork:
+- **Logo ASCII Dinamico**: Branding coerente con sfumature ciano/blu.
+- **Progress Tracking**: Barre di avanzamento vettoriali con calcolo del tempo rimanente.
+- **Reporting**: Tabelle stilizzate e pannelli informativi per un feedback immediato.
+- **Logging Avanzato**: Integrazione tra `Loguru` e `RichHandler` per log colorati e leggibili direttamente in console.
+
 ## 🏗️ Struttura Progetto
 - `src/prenotazione_pdl/`: Codice sorgente.
   - `automation/`: Driver Selenium e azioni sul portale.

@@ -13,18 +13,24 @@ selenium = "^4.18.1"
 openpyxl = ">=3.1.5"
 tenacity = "^8.2.3"
 pywin32 = { version = "*", platform = "win32" }
+loguru = "*"
+rich = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
-ruff = "^0.3.0"
+ruff = "^0.14.10"
 mypy = "*"
 xenon = "^0.9.3"
 radon = "*"
 interrogate = "^1.7.0"
-bandit = "^1.7.7"
+bandit = "^1.9.2"
 vulture = "^2.11"
-refurb = "^2.0.0"
-eradicate = "^2.3.0"
+refurb = "^2.2.0"
+eradicate = "^3.0.1"
+codespell = "^2.4.1"
+deptry = "^0.24.0"
+commitizen = "^4.12.0"
+yesqa = "^1.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -63,6 +69,11 @@ ignore = [
 [tool.ruff.lint.mccabe]
 max-complexity = 10
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S105", "S106", "S108", "T201", "DTZ", "SIM117", "ANN", "PT011"]
+"**/__init__.py" = ["F401"]
+"*.py" = ["PTH"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["prenotazione_pdl"]
 force-single-line = false
@@ -97,6 +108,25 @@ module = [
     "win32client.*"
 ]
 ignore_missing_imports = true
+
+[tool.deptry]
+known_first_party = ["prenotazione_pdl"]
+exclude = [".venv", "build", "dist", "temp"]
+
+[tool.codespell]
+skip = "*.pyc,*.lock,*.db,./build/*,./dist/*,./temp/*,./.venv/*,./.git/*,./.ruff_cache/*,./.pytest_cache/*"
+ignore-words-list = "nome,ore,impossibile,stati,reparti,cantieri,fornitori,contratti,registrate,invalide,cliente,fase"
+check-filenames = true
+
+[tool.bandit]
+skips = ["B608", "B603", "B606", "B607", "B404", "B311", "B101", "B110", "B112", "B105", "B106", "B107"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+changelog_file = "CHANGELOG.md"
+update_changelog_on_bump = true
 
 [tool.interrogate]
 ignore-init-method = true
