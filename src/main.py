@@ -237,7 +237,7 @@ class StateManager:
 class PDLOrchestrator:
     """Orchestra l'intero workflow di prenotazione PDL."""
 
-    def __init__(self, dry_run: bool = False, secure_pwd: bool = False, headless: bool = True) -> None:
+    def __init__(self, dry_run: bool = False, secure_pwd: bool = False, headless: bool = False) -> None:
         self.dry_run = dry_run
         self.secure_pwd = secure_pwd
         self.headless = headless
@@ -377,8 +377,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Automazione SafeWork ISAB.")
     parser.add_argument("--dry-run", action="store_true", help="Simula le azioni senza scrivere sul sito.")
     parser.add_argument("--secure", action="store_true", help="Richiede la password interattivamente.")
-    parser.add_argument("--no-headless", dest="headless", action="store_false", help="Mostra l'interfaccia grafica del browser.")
-    parser.set_defaults(headless=True)
+    parser.add_argument("--headless", action="store_true", help="Avvia il browser in modalità headless (background).")
+    parser.set_defaults(headless=False)
     args = parser.parse_args()
 
     orchestrator = PDLOrchestrator(dry_run=args.dry_run, secure_pwd=args.secure, headless=args.headless)
