@@ -8,6 +8,7 @@ from typing import Any
 
 import openpyxl
 from loguru import logger
+from openpyxl.utils import column_index_from_string
 from tenacity import (
     retry,
     retry_if_exception_type,
@@ -172,10 +173,13 @@ class ExcelProcessor:
     def _leggi_lista_bulk(self, colonna_giorno: str) -> list[PDLData]:
         """Esegue la lettura bulk delle righe nel foglio Excel."""
         lista_pdl: list[PDLData] = []
+        if not self.data_file_path:
+            return []
         try:
-            wb = openpyxl.load_workbook(self.data_file_path, data_only=True, read_only=True)
+            path: str = self.data_file_path
+            wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
             sheet = wb[Config.NOME_FOGLIO_DATI_PDL]
-            idx_giorno = openpyxl.utils.column_index_from_string(colonna_giorno)
+            idx_giorno = column_index_from_string(colonna_giorno)
             col_map = self._genera_col_map()
 
             for i, row in enumerate(
@@ -191,7 +195,7 @@ class ExcelProcessor:
 
     def _genera_col_map(self) -> dict[str, int]:
         """Genera la mappatura nome_colonna -> indice_colonna."""
-        return {key: openpyxl.utils.column_index_from_string(col) for key, col in Config.COLONNE_EXCEL_REPORT.items()}
+        return {key: column_index_from_string(col) for key, col in Config.COLONNE_EXCEL_REPORT.items()}
 
     def _processa_singola_riga(self, row: tuple[Any, ...], i: int, idx_giorno: int, col_map: dict[str, int]) -> PDLData | None:
         """Controlla il marker e processa la riga se necessario."""

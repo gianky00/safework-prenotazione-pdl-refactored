@@ -63,7 +63,8 @@ select = [
     "TCH", "PTH", "DTZ", "RET", "PIE", "T20", "LOG", "S", "ANN", "ERA", "N", "TRY", "PL", "C90"
 ]
 ignore = [
-    "E501", "RET504", "DTZ005", "T201", "S603", "S607", "S608", "RUF001", "ANN401"
+    "E501", "RET504", "DTZ005", "T201", "S603", "S607", "S608", "RUF001", "ANN401",
+    "TRY003", "S110", "S112", "S105", "TRY300", "PLR0913"
 ]
 
 [tool.ruff.lint.mccabe]

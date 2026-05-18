@@ -7,8 +7,8 @@ from selenium.webdriver.common.by import By
 
 # Determinazione della directory dello script
 SCRIPT_FILE_PATH_ABS = os.path.abspath(__file__)
-# Saliamo di tre livelli: src/prenotazione_pdl/config.py -> src/prenotazione_pdl/ -> src/ -> root
-BASE_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Saliamo di due livelli: src/config.py -> src/ -> root
+BASE_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class Config:
