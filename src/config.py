@@ -22,9 +22,11 @@ class Config:
     NOME_FOGLIO_DATI_PDL: ClassVar[str] = "Riepilogo"
     EXCEL_SHEET_CREDENTIALS: ClassVar[str] = "credenziali"
     EXCEL_SHEET_PERCORSI: ClassVar[str] = "percorsi"
+    EXCEL_SHEET_INSERIMENTO_DATI: ClassVar[str] = "Inserimento dati"
 
     CELLA_URL_SITO: ClassVar[str] = "B3"
     CELLA_PERCORSO_FILE_DATI_PDL: ClassVar[str] = "B2"
+    CELLA_PRENOTAZIONE_OGGI: ClassVar[str] = "B6"  # SI = OGGI PER DOMANI, NO = OGGI PER OGGI
     USERNAME_CELL_EXCEL: ClassVar[str] = "A3"
     PASSWORD_CELL_EXCEL: ClassVar[str] = "B3"
 
@@ -40,9 +42,9 @@ class Config:
     }
 
     RIGA_INIZIO_DATI_PDL: ClassVar[int] = 4
-    MAPPA_GIORNI_COLONNE_DATE: ClassVar[dict[int, str]] = {i: chr(ord("H") + i) for i in range(5)}
 
     # Macro Excel
+    MACRO_FILTRO: ClassVar[str] = "FiltraProgrGiornalieraRiepilogoDinamico"
     MACRO_SEQ_1: ClassVar[str] = "ordina.OrdinaEFormattaTabellaCorrente"
     MACRO_SEQ_2: ClassVar[str] = "Modulo8.aggiornaQuery"
     MACRO_SEQ_3: ClassVar[str] = "Rimuovi_Tutti_I_Filtri.RimuoviTuttiIFiltri"

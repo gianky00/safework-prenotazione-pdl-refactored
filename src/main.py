@@ -10,6 +10,7 @@ import time
 import traceback
 import warnings
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from loguru import logger
@@ -40,6 +41,7 @@ from .models import (
     PDLData,
     TimeoutAlertError,
 )
+from .utils.email_manager import EmailManager
 
 # SOPPRESSIONE WARNING E LOG DI SISTEMA
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -165,16 +167,28 @@ def stampa_report_finale(pdl_list: list[PDLData]) -> None:
 def _stampa_pannello_recap(pdl_list: list[PDLData]) -> None:
     """Calcola le statistiche e stampa il pannello di recap finale."""
     success_keys = ["OK", "COMPLETATO", "ESEGUITA"]
+    
     successi = sum(
         1
         for p in pdl_list
         if p.stato_script and any(k in p.stato_script.upper() for k in success_keys)
     )
-    anomalie = len(pdl_list) - successi
+    
+    # Stati informativi ma non considerati anomalie tecniche
+    gia_prenotati = sum(
+        1 for p in pdl_list if p.stato_script and "GIÀ PRENOTATO" in p.stato_script.upper()
+    )
+    non_programmati = sum(
+        1 for p in pdl_list if p.stato_script and "NON PROGRAMMATO" in p.stato_script.upper()
+    )
+    
+    anomalie = len(pdl_list) - successi - gia_prenotati - non_programmati
 
     summary_text = f"""[#00d2ff]🔹 PdL Totali in lista:[/#00d2ff] [highlight]{len(pdl_list)}[/highlight]
 [#00d2ff]🔹 Prenotazioni completate:[/#00d2ff] [success]{successi}[/success]
-[#00d2ff]🔹 Anomalie rilevate:[/#00d2ff] [error]{anomalie}[/error]"""
+[#00d2ff]🔹 PdL già prenotati:[/#00d2ff] [warning]{gia_prenotati}[/warning]
+[#00d2ff]🔹 PdL non in sistema:[/#00d2ff] [warning]{non_programmati}[/warning]
+[#00d2ff]🔹 Anomalie (Errori):[/#00d2ff] [error]{anomalie}[/error]"""
 
     panel = Panel(
         summary_text,
@@ -237,10 +251,11 @@ class StateManager:
 class PDLOrchestrator:
     """Orchestra l'intero workflow di prenotazione PDL."""
 
-    def __init__(self, dry_run: bool = False, secure_pwd: bool = False, headless: bool = False) -> None:
+    def __init__(self, dry_run: bool = False, secure_pwd: bool = False, headless: bool = False, today: bool = False) -> None:
         self.dry_run = dry_run
         self.secure_pwd = secure_pwd
         self.headless = headless
+        self.today = today
 
         # Configurazione Logger immediata
         logger.remove()
@@ -257,9 +272,10 @@ class PDLOrchestrator:
         )
 
         self.config_path = os.path.join(Config.SCRIPT_DIR, Config.EXCEL_FILE_CONFIG_NAME)
-        self.excel = ExcelProcessor(self.config_path)
+        self.excel = ExcelProcessor(self.config_path, prenotazione_oggi_per_oggi=self.today)
         self.driver_manager = WebDriverManager(headless=self.headless, start_maximized=True)
         self.state = StateManager(os.path.join(Config.SCRIPT_DIR, Config.FILE_STATO_PROCESSO))
+        self.email = EmailManager()
 
     def _inizializza_dati_preparazione(self, progress: Progress, task_id: Any) -> tuple[str, str, str, list[PDLData]]:
         """Esegue la fase 1: recupero URL, credenziali e lista PDL."""
@@ -316,11 +332,46 @@ class PDLOrchestrator:
                 time.sleep(Config.PAUSA_TRA_TENTATIVI_SETUP_FALLITI)
         return idx_corrente
 
+    def _invia_report_email(self, pdl_list: list[PDLData], success: bool, errore: str | None = None) -> None:
+        """
+        Invia il report email riepilogativo con l'esito dell'automazione.
+
+        Allega opzionalmente il file log se disponibile. Per direttiva utente,
+        non allega alcun file Excel.
+
+        Args:
+            pdl_list: Lista dei PDL elaborati.
+            success: Flag indicante il successo dell'elaborazione.
+            errore: Stringa contenente il dettaglio di eventuali eccezioni riscontrate.
+        """
+        logger.info("Preparazione ed invio del report email riepilogativo...")
+        giorno_str = datetime.now(UTC).strftime("%d/%m/%Y")
+
+        # Individuazione del file log per l'allegato
+        log_path = Path(Config.SCRIPT_DIR) / "prenotazione_pdl.log"
+        attachment = log_path if log_path.exists() else None
+
+        if success:
+            subject = f"✅ SafeWork PDL: Report Elaborazione del {giorno_str}"
+            body_html = self.email.build_pdl_report_html(pdl_list)
+        else:
+            subject = f"❌ SafeWork PDL: ERRORE CRITICO in data {giorno_str}"
+            error_msg = errore or "Si è verificato un errore critico durante l'esecuzione del processo."
+            body_html = self.email.build_error_report_html(error_msg)
+
+        self.email.send_report(
+            subject=subject,
+            body_html=body_html,
+            attachment_path=attachment,
+            display=False,
+        )
+
     def run(self) -> None:
         """Esegue il workflow principale con un'unica barra di avanzamento consolidata."""
         stampa_logo()
         logger.info(f"Avvio automazione (Dry Run: {self.dry_run})")
 
+        pdl_list: list[PDLData] = []
         with Progress(
             SpinnerColumn(spinner_name="point", style="highlight"),
             TextColumn("[progress.description]{task.description}"),
@@ -339,6 +390,7 @@ class PDLOrchestrator:
 
                 if not pdl_list:
                     console.print(Panel("[warning]⚠️ Nessun PDL da processare oggi.[/warning]", border_style="warning"))
+                    self._invia_report_email(pdl_list, success=True)
                     return
 
                 # --- FASE 2: ELABORAZIONE SUL PORTALE ---
@@ -362,12 +414,15 @@ class PDLOrchestrator:
                     console.print(Rule("[bold white]FASE 3: REPORTING[/bold white]", characters="▓▒░", style="#00d2ff"))
                     stampa_report_finale(pdl_list)
                     self.state.rimuovi_stato()
+                    self._invia_report_email(pdl_list, success=True)
 
                 timed_input("\nOperazione conclusa. Premi INVIO per uscire (timeout 30m)... ", 1800)
 
             except Exception as e:
                 logger.critical(f"Errore fatale imprevisto: {e}")
+                tb = traceback.format_exc()
                 traceback.print_exc()
+                self._invia_report_email(pdl_list, success=False, errore=tb)
             finally:
                 self.driver_manager.quit_driver()
 
@@ -378,10 +433,11 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Simula le azioni senza scrivere sul sito.")
     parser.add_argument("--secure", action="store_true", help="Richiede la password interattivamente.")
     parser.add_argument("--headless", action="store_true", help="Avvia il browser in modalità headless (background).")
-    parser.set_defaults(headless=False)
+    parser.add_argument("--today", action="store_true", help="Modalità OGGI PER OGGI (B6=NO). Default: OGGI PER DOMANI (B6=SI).")
+    parser.set_defaults(headless=True)
     args = parser.parse_args()
 
-    orchestrator = PDLOrchestrator(dry_run=args.dry_run, secure_pwd=args.secure, headless=args.headless)
+    orchestrator = PDLOrchestrator(dry_run=args.dry_run, secure_pwd=args.secure, headless=args.headless, today=args.today)
     orchestrator.run()
 
 

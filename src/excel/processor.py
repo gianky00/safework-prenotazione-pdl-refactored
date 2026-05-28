@@ -1,9 +1,11 @@
 """Modulo per l'elaborazione dei file Excel di configurazione e dati PDL."""
 
+import contextlib
 import getpass
 import os
+import subprocess
 import time
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Any
 
 import openpyxl
@@ -32,16 +34,20 @@ except ImportError:
 class ExcelProcessor:
     """Gestisce la lettura dei parametri da Excel e l'estrazione dei dati PDL."""
 
-    def __init__(self, config_file_path: str, data_file_path: str | None = None) -> None:
+    def __init__(self, config_file_path: str, data_file_path: str | None = None, prenotazione_oggi_per_oggi: bool = False) -> None:
         """
         Inizializza il processore Excel.
 
         Args:
             config_file_path: Percorso del file Excel di configurazione principale.
             data_file_path: Percorso del file dati PDL (se già noto).
+            prenotazione_oggi_per_oggi: Se True, configura B6="NO" (OGGI PER OGGI). 
+                                        Se False (default), configura B6="SI" (OGGI PER DOMANI).
         """
         self.config_file_path = config_file_path
         self.data_file_path = data_file_path
+        self.prenotazione_oggi_per_oggi = prenotazione_oggi_per_oggi
+        self._cached_pdl_list: list[PDLData] = []
         logger.info(f"ExcelProcessor inizializzato. Config: '{config_file_path}'")
         if not os.path.exists(self.config_file_path):
             raise CriticalConfigError(f"File parametri Excel non trovato: {self.config_file_path}")
@@ -107,7 +113,7 @@ class ExcelProcessor:
         return str(username), str(password)
 
     def run_pdl_macros(self) -> bool:
-        """Esegue la sequenza di macro VBA necessaria per aggiornare i dati."""
+        """Esegue la sequenza di macro VBA necessaria per aggiornare i dati ed estrae i PDL."""
         if not WIN32COM_AVAILABLE:
             logger.warning("Libreria pywin32 non disponibile. Esecuzione macro saltata.")
             return False
@@ -119,104 +125,159 @@ class ExcelProcessor:
             logger.error(f"Impossibile eseguire macro: file '{self.data_file_path}' non trovato.")
             return False
 
-        return self._esegui_sessione_macro(os.path.abspath(self.data_file_path))
+        self._cached_pdl_list = self._esegui_sessione_macro(os.path.abspath(self.data_file_path), run_updates=True)
+        return len(self._cached_pdl_list) > 0
 
-    def _esegui_sessione_macro(self, abs_path: str) -> bool:
-        """Gestisce una sessione Excel per l'esecuzione delle macro sequenziali."""
+    def _chiudi_excel_forzatamente(self) -> None:
+        """Tenta di chiudere eventuali processi Excel pendenti per evitare lock sui file."""
+        try:
+            logger.info("Tentativo di chiusura forzata di eventuali processi Excel attivi...")
+            subprocess.run(["taskkill", "/F", "/IM", "excel.exe", "/T"], capture_output=True, check=False)
+            time.sleep(2)
+        except Exception as e:
+            logger.warning(f"Non è stato possibile chiudere Excel forzatamente: {e}")
+
+    def _esegui_sessione_macro(self, abs_path: str, run_updates: bool = True) -> list[PDLData]:
+        """Gestisce una sessione Excel per l'esecuzione delle macro e l'estrazione dati."""
+        self._chiudi_excel_forzatamente()
         excel_app, workbook = None, None
-        success = False
+        extracted_data: list[PDLData] = []
         try:
             excel_app = win32com.client.Dispatch("Excel.Application")
             excel_app.Visible, excel_app.DisplayAlerts = False, False
-            workbook = excel_app.Workbooks.Open(abs_path)
+            excel_app.AskToUpdateLinks = False
+
+            logger.info(f"Apertura workbook: {abs_path}")
+            workbook = excel_app.Workbooks.Open(abs_path, UpdateLinks=False, ReadOnly=(not run_updates))
             time.sleep(Config.PAUSA_APERTURA_EXCEL)
 
-            for macro_name in [Config.MACRO_SEQ_1, Config.MACRO_SEQ_2, Config.MACRO_SEQ_3]:
-                logger.info(f"Esecuzione macro '{macro_name}'...")
-                excel_app.Application.Run(macro_name)
-                time.sleep(1)
+            # --- LOGICA PRENOTAZIONE "OGGI PER DOMANI" vs "OGGI PER OGGI" ---
+            # Se prenotazione_oggi_per_oggi è True -> "OGGI PER OGGI" (B6="NO")
+            # Se prenotazione_oggi_per_oggi è False -> "OGGI PER DOMANI" (B6="SI")
+            valore_flag = "NO" if self.prenotazione_oggi_per_oggi else "SI"
+            modalita_str = "OGGI PER OGGI" if self.prenotazione_oggi_per_oggi else "OGGI PER DOMANI"
+            
+            logger.info(f"Configurazione modalità '{modalita_str}': imposto B6 su '{valore_flag}'")
+            try:
+                sheet_ins = workbook.Sheets(Config.EXCEL_SHEET_INSERIMENTO_DATI)
+                sheet_ins.Range(Config.CELLA_PRENOTAZIONE_OGGI).Value = valore_flag
+            except Exception as e:
+                logger.warning(f"Impossibile impostare il flag {valore_flag} in B6: {e}")
 
-            workbook.Save()
-            success = True
-            logger.info("Tutte le macro sono state eseguite con successo.")
+            if run_updates:
+                for macro_name in [Config.MACRO_SEQ_1, Config.MACRO_SEQ_2, Config.MACRO_SEQ_3]:
+                    logger.info(f"Esecuzione macro di aggiornamento '{macro_name}'...")
+                    with contextlib.suppress(Exception):
+                        excel_app.Application.Run(macro_name)
+                    time.sleep(1)
+
+            logger.info(f"Esecuzione macro di filtraggio '{Config.MACRO_FILTRO}'...")
+            try:
+                excel_app.Application.Run(Config.MACRO_FILTRO)
+            except Exception as e:
+                logger.warning(f"Errore durante l'esecuzione della macro di filtraggio: {e}")
+
+            time.sleep(2)
+            extracted_data = self._estrai_dati_visibili_win32(workbook)
+
+            if run_updates:
+                logger.info(f"Esecuzione reset finale filtri '{Config.MACRO_SEQ_3}'...")
+                with contextlib.suppress(Exception):
+                    excel_app.Application.Run(Config.MACRO_SEQ_3)
+                
+                # Ripristino flag prenotazione "OGGI" su "NO" per debug/consistenza futura
+                logger.info("Ripristino modalità standard: imposto B6 su 'NO'")
+                try:
+                    sheet_ins = workbook.Sheets(Config.EXCEL_SHEET_INSERIMENTO_DATI)
+                    sheet_ins.Range(Config.CELLA_PRENOTAZIONE_OGGI).Value = "NO"
+                except Exception as e:
+                    logger.warning(f"Impossibile ripristinare il flag B6 su 'NO': {e}")
+                
+                workbook.Save()
+
+            logger.info(f"Sessione Excel completata. Estratti {len(extracted_data)} PDL.")
+
         except Exception as e:
-            logger.error(f"Errore critico durante la sequenza macro: {e}", exc_info=True)
+            logger.error(f"Errore critico durante la sessione Excel: {e}", exc_info=True)
+            if not run_updates: # Se fallisce in read-only, riproviamo con openpyxl come fallback estremo
+                return []
             raise
         finally:
             if workbook:
-                workbook.Close(SaveChanges=success)
+                workbook.Close(SaveChanges=run_updates)
             if excel_app:
                 excel_app.Quit()
-        return success
+        return extracted_data
+
+    def _estrai_dati_visibili_win32(self, workbook: Any) -> list[PDLData]:
+        """Estrae i dati dalle righe visibili dopo il filtraggio usando win32com."""
+        xl_cell_type_visible = 12
+        lista_pdl: list[PDLData] = []
+        try:
+            sheet = workbook.Sheets(Config.NOME_FOGLIO_DATI_PDL)
+            last_row = sheet.UsedRange.Rows.Count + sheet.UsedRange.Row - 1
+            if last_row < Config.RIGA_INIZIO_DATI_PDL:
+                return []
+
+            # Leggiamo tutto il range utile in una matrice per velocità (fino alla colonna S)
+            max_col = max(column_index_from_string(c) for c in Config.COLONNE_EXCEL_REPORT.values())
+            raw_range = sheet.Range(sheet.Cells(1, 1), sheet.Cells(last_row, max_col))
+            matrix = raw_range.Value
+
+            # Identifichiamo le righe visibili
+            data_range = sheet.Range(sheet.Cells(Config.RIGA_INIZIO_DATI_PDL, 1), sheet.Cells(last_row, 1))
+            try:
+                visible_cells = data_range.SpecialCells(xl_cell_type_visible)
+
+            except Exception:
+                logger.warning("Nessuna riga visibile trovata dopo il filtraggio.")
+                return []
+
+            col_map = self._genera_col_map()
+
+            for area in visible_cells.Areas:
+                for r in range(area.Row, area.Row + area.Rows.Count):
+                    riga_dati = matrix[r - 1]
+                    pdl_data = self._crea_pdl_data_da_matrice(riga_dati, r, col_map)
+                    if pdl_data and pdl_data.pdl:
+                        lista_pdl.append(pdl_data)
+        except Exception as e:
+            logger.error(f"Errore durante l'estrazione win32: {e}")
+        return lista_pdl
+
+    def _crea_pdl_data_da_matrice(self, riga_dati: tuple[Any, ...], riga_idx: int, col_map: dict[str, int]) -> PDLData | None:
+        """Converte una riga della matrice win32 in un oggetto PDLData."""
+        data: dict[str, Any] = {"riga_excel_debug": riga_idx}
+        for key, col_idx in col_map.items():
+            val = riga_dati[col_idx - 1]
+            data[key] = self._formatta_valore_cella(val, key)
+        return PDLData(**data)
 
     def get_pdl_list_from_excel(self) -> list[PDLData]:
-        """Estrae la lista dei PDL da processare in un'unica lettura bulk del foglio."""
+        """Restituisce la lista dei PDL (usando la cache o estraendoli se necessario)."""
+        if self._cached_pdl_list:
+            return self._cached_pdl_list
+
+        if not self.data_file_path:
+            self.get_pdl_data_file_path()
+
         if not self.data_file_path or not os.path.exists(self.data_file_path):
             return []
 
-        colonna_giorno = self._get_colonna_giorno_corrente()
-        if not colonna_giorno:
-            return []
-
-        logger.info(f"Estrazione PDL (Colonna Excel: {colonna_giorno})")
-        return self._leggi_lista_bulk(colonna_giorno)
-
-    def _get_colonna_giorno_corrente(self) -> str | None:
-        """Determina la colonna Excel in base al giorno della settimana corrente."""
-        oggi = datetime.now(UTC).date()
-        giorno_settimana = oggi.weekday()
-        if giorno_settimana not in Config.MAPPA_GIORNI_COLONNE_DATE:
-            logger.warning(f"Oggi ({oggi.strftime('%A')}) non è un giorno previsto per l'automazione.")
-            return None
-        return Config.MAPPA_GIORNI_COLONNE_DATE[giorno_settimana]
-
-    def _leggi_lista_bulk(self, colonna_giorno: str) -> list[PDLData]:
-        """Esegue la lettura bulk delle righe nel foglio Excel."""
-        lista_pdl: list[PDLData] = []
-        if not self.data_file_path:
-            return []
-        try:
-            path: str = self.data_file_path
-            wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
-            sheet = wb[Config.NOME_FOGLIO_DATI_PDL]
-            idx_giorno = column_index_from_string(colonna_giorno)
-            col_map = self._genera_col_map()
-
-            for i, row in enumerate(
-                sheet.iter_rows(min_row=Config.RIGA_INIZIO_DATI_PDL, values_only=True), start=Config.RIGA_INIZIO_DATI_PDL
-            ):
-                pdl = self._processa_singola_riga(row, i, idx_giorno, col_map)
-                if pdl:
-                    lista_pdl.append(pdl)
-            wb.close()
-        except Exception as e:
-            logger.error(f"Errore durante la lettura bulk della lista PDL: {e}", exc_info=True)
-        return lista_pdl
+        # Se la cache è vuota (es. dry run o errore precedente), proviamo un'estrazione veloce read-only
+        logger.info("Cache PDL vuota. Esecuzione estrazione rapida (read-only)...")
+        self._cached_pdl_list = self._esegui_sessione_macro(os.path.abspath(self.data_file_path), run_updates=False)
+        return self._cached_pdl_list
 
     def _genera_col_map(self) -> dict[str, int]:
         """Genera la mappatura nome_colonna -> indice_colonna."""
         return {key: column_index_from_string(col) for key, col in Config.COLONNE_EXCEL_REPORT.items()}
-
-    def _processa_singola_riga(self, row: tuple[Any, ...], i: int, idx_giorno: int, col_map: dict[str, int]) -> PDLData | None:
-        """Controlla il marker e processa la riga se necessario."""
-        valore_giorno = row[idx_giorno - 1]
-        if valore_giorno and str(valore_giorno).strip().upper() == 'X':
-            pdl_info = self._processa_riga_vettoriale(row, i, col_map)
-            return pdl_info if pdl_info.pdl else None
-        return None
-
-    def _processa_riga_vettoriale(self, row: tuple[Any, ...], riga_idx: int, col_map: dict[str, int]) -> PDLData:
-        """Estrae i dati da una riga Excel e li incapsula in PDLData."""
-        data: dict[str, Any] = {"riga_excel_debug": riga_idx}
-        for key, col_idx in col_map.items():
-            val = row[col_idx - 1]
-            data[key] = self._formatta_valore_cella(val, key)
-        return PDLData(**data)
 
     def _formatta_valore_cella(self, val: Any, key: str) -> str:
         """Uniforma il formato dei valori letti da Excel."""
         if isinstance(val, datetime):
             return val.strftime("%d/%m/%Y")
         if isinstance(val, (int, float)) and key == 'pdl':
-            return str(int(val))
+            # Gestione PDL come "123456.0" -> "123456"
+            return str(int(val)) if val == int(val) else str(val)
         return str(val).strip() if val is not None else ""
