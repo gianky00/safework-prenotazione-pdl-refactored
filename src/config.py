@@ -14,6 +14,7 @@ BASE_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class Config:
     """Classe contenente tutte le costanti di configurazione del processo."""
 
+    HEADLESS: ClassVar[bool] = True
     SCRIPT_DIR: ClassVar[str] = BASE_DIRECTORY
     FILE_STATO_PROCESSO: ClassVar[str] = "stato_processo_pdl.json"
     DEFAULT_URL_SITO: ClassVar[str] = "https://safework.isab.com/"
