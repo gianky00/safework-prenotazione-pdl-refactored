@@ -25,7 +25,7 @@ def test_models_pdl_data() -> None:
         data_controllo_excel="2026-05-18",
         personale_excel="G. Allegretti"
     )
-    assert pdl.riga_excel_debug == 4
+    assert pdl.riga_excel_debug == 4  # noqa: PLR2004
     assert pdl.pdl == "12345"
     assert pdl.area == "Sud"
     assert pdl.impianto == "U100"

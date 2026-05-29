@@ -1,9 +1,7 @@
 """Test unitari per il modulo automation/driver.py."""
 
 from unittest.mock import MagicMock, patch
-
 import pytest
-
 from src.automation.driver import WebDriverManager
 from src.models import AutomationError
 
@@ -17,8 +15,10 @@ def mock_chrome() -> MagicMock:
 
 @pytest.fixture
 def mock_options() -> MagicMock:
-    """Fixture per mockare selenium.webdriver.ChromeOptions."""
-    with patch("src.automation.driver.webdriver.ChromeOptions") as mock_opt:
+    """Fixture per mockare selenium.webdriver.chrome.options.Options."""
+    # In src/automation/driver.py viene importato come:
+    # from selenium.webdriver.chrome.options import Options
+    with patch("src.automation.driver.Options") as mock_opt:
         yield mock_opt
 
 
@@ -73,8 +73,10 @@ def test_get_driver_success_headless(mock_chrome: MagicMock, mock_options: Magic
 
     # Dovrebbe aggiungere --headless=new e NON --start-maximized
     mock_options_instance.add_argument.assert_any_call("--headless=new")
-    with pytest.raises(AssertionError):
-        mock_options_instance.add_argument.assert_any_call("--start-maximized")
+    
+    # Verifichiamo che --start-maximized non sia mai stato chiamato
+    calls = [call[0][0] for call in mock_options_instance.add_argument.call_args_list]
+    assert "--start-maximized" not in calls
 
 
 def test_quit_driver_active(mock_chrome: MagicMock) -> None:
@@ -83,12 +85,14 @@ def test_quit_driver_active(mock_chrome: MagicMock) -> None:
     mock_chrome.return_value = mock_driver_instance
 
     manager = WebDriverManager()
-    manager.get_driver()
-    assert manager.driver is not None
+    # Mocking _crea_opzioni_chrome per evitare dipendenze da Options
+    with patch.object(WebDriverManager, "_crea_opzioni_chrome"):
+        manager.get_driver()
+        assert manager.driver is not None
 
-    manager.quit_driver()
-    mock_driver_instance.quit.assert_called_once()
-    assert manager.driver is None
+        manager.quit_driver()
+        mock_driver_instance.quit.assert_called_once()
+        assert manager.driver is None
 
 
 @patch("src.automation.driver.time.sleep")
@@ -97,5 +101,6 @@ def test_get_driver_retry_failure(mock_sleep: MagicMock, mock_chrome: MagicMock)
     mock_chrome.side_effect = Exception("Errore driver continuo")
 
     manager = WebDriverManager()
-    with pytest.raises(AutomationError, match="Impossibile creare il WebDriver"):
-        manager.get_driver()
+    with patch.object(WebDriverManager, "_crea_opzioni_chrome"):
+        with pytest.raises(AutomationError, match="Impossibile creare il WebDriver"):
+            manager.get_driver()

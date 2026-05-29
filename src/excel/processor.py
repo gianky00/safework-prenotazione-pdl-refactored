@@ -41,7 +41,7 @@ class ExcelProcessor:
         Args:
             config_file_path: Percorso del file Excel di configurazione principale.
             data_file_path: Percorso del file dati PDL (se già noto).
-            prenotazione_oggi_per_oggi: Se True, configura B6="NO" (OGGI PER OGGI). 
+            prenotazione_oggi_per_oggi: Se True, configura B6="NO" (OGGI PER OGGI).
                                         Se False (default), configura B6="SI" (OGGI PER DOMANI).
         """
         self.config_file_path = config_file_path
@@ -137,7 +137,7 @@ class ExcelProcessor:
         except Exception as e:
             logger.warning(f"Non è stato possibile chiudere Excel forzatamente: {e}")
 
-    def _esegui_sessione_macro(self, abs_path: str, run_updates: bool = True) -> list[PDLData]:
+    def _esegui_sessione_macro(self, abs_path: str, run_updates: bool = True) -> list[PDLData]:  # noqa: C901, PLR0915
         """Gestisce una sessione Excel per l'esecuzione delle macro e l'estrazione dati."""
         self._chiudi_excel_forzatamente()
         excel_app, workbook = None, None

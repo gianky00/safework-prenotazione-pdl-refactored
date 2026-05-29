@@ -49,7 +49,8 @@ class EmailManager:
                 bg_color = "#f9f9f9" if i % 2 != 0 else "#ffffff"
                 orario_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
                 stato = str(pdl.stato_script)
-                if len(stato) > max_status_len: stato = stato[:max_status_len-3] + "..."
+                if len(stato) > max_status_len:
+                    stato = stato[:max_status_len - 3] + "..."
 
                 rows_html += f"""
                 <tr style="background-color: {bg_color}; text-align: center;">
@@ -83,7 +84,7 @@ class EmailManager:
         html = f"""
         <html>
         <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; margin: 20px;">
-            
+
             <!-- HEADER -->
             <table style="width: 100%; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
                 <tr>

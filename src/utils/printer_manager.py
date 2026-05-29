@@ -91,7 +91,7 @@ class PrinterManager:
             logger.error(f"Errore durante l'archiviazione/stampa PDF: {e}")
             return False
 
-    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:
+    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:  # noqa: PLR0915
         """Costruisce il layout del PDF professionale in bianco e nero."""
         max_status_len = 30
         doc = SimpleDocTemplate(
