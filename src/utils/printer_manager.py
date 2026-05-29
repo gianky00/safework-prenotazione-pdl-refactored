@@ -117,14 +117,26 @@ class PrinterManager:
             alignment=2 # Destra
         )
         
+        disclaimer_style = ParagraphStyle(
+            'DisclaimerStyle',
+            fontSize=6,
+            textColor=colors.grey,
+            alignment=0, # Sinistra
+            leading=8
+        )
+        
         header_data = []
+        disclaimer_text = "Documento strettamente riservato ad uso interno - COEMI s.r.l."
+        
         if os.path.exists(logo_path):
             img = Image(logo_path, width=2.5*cm, height=2.5*cm)
-            header_data = [[img, Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{datetime.now().strftime('%y%m%d')}", meta_style)]]
+            # La cella sinistra contiene Logo + Disclaimer
+            left_cell = [img, Paragraph(disclaimer_text, disclaimer_style)]
+            header_data = [[left_cell, Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{datetime.now().strftime('%y%m%d')}", meta_style)]]
         else:
-            header_data = [[Paragraph("<b>COEMI S.R.L.</b>", styles['Normal']), Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}", meta_style)]]
+            header_data = [[Paragraph(f"<b>COEMI S.R.L.</b><br/><font size='6'>{disclaimer_text}</font>", styles['Normal']), Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}", meta_style)]]
             
-        header_table = Table(header_data, colWidths=[6*cm, 12*cm])
+        header_table = Table(header_data, colWidths=[8*cm, 10*cm])
         header_table.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
@@ -179,7 +191,7 @@ class PrinterManager:
         
         for area_name in sorted_areas:
             # Titolo Sezione Area
-            elements.append(Paragraph(f"ZONA: {area_name}", ParagraphStyle('AreaHeader', fontSize=10, fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=6, leftIndent=0)))
+            elements.append(Paragraph(f"{area_name}", ParagraphStyle('AreaHeader', fontSize=10, fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=6, leftIndent=0)))
             
             # Intestazioni tabella per questa Area
             data = [['PdL', 'Impianto', 'Orario Prenotazione', 'Stato Esito']]
