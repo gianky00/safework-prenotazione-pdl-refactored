@@ -90,7 +90,7 @@ class PrinterManager:
             logger.error(f"Errore durante l'archiviazione/stampa PDF: {e}")
             return False
 
-    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str) -> None:
+    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:
         """Costruisce il layout del PDF professionale in bianco e nero."""
         doc = SimpleDocTemplate(
             file_path,
@@ -108,7 +108,7 @@ class PrinterManager:
         logo_path = os.path.join(project_root, "assets", "logo coemi.png")
         
         # Metadata del documento
-        now_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+        now_str = now.strftime("%d/%m/%Y %H:%M")
         
         meta_style = ParagraphStyle(
             'MetaStyle',
@@ -262,3 +262,4 @@ class PrinterManager:
         # Salvataggio
         doc.build(elements)
         logger.info(f"PDF generato con successo: {file_path}")
+
