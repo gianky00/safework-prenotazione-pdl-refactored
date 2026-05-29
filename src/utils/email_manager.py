@@ -23,7 +23,7 @@ class EmailManager:
         """Costruisce il corpo HTML per il report, allineato allo stile del PDF professionale."""
         now = datetime.now()
         now_str = now.strftime("%d/%m/%Y %H:%M")
-        rif_str = f"SAF-PRN-{now.strftime('%y%m%d')}"
+        rif_str = f"SAF-PRN-{now.strftime('%d%m%Y')}"
         version_str = "SafeWork-PDL v2.1.0"
 
         # --- LOGICA CONTEGGI (Opzione B) ---
