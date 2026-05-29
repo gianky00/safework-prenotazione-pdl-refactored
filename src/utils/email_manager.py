@@ -37,6 +37,7 @@ class EmailManager:
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.pdl}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.area}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.impianto}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.tempo_rimanente}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap; color: {status_color};"><b>{pdl.stato_script}</b></td>
             </tr>
             """
@@ -46,11 +47,12 @@ class EmailManager:
         <body style="font-family: Arial, sans-serif;">
             <h2 style="color: #0088ff;">Report Automazione Prenotazione PDL</h2>
             <p>Di seguito il riepilogo dell'elaborazione effettuata in data {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}:</p>
-            <table style="border-collapse: collapse; width: auto; min-width: 400px;">
+            <table style="border-collapse: collapse; width: auto; min-width: 500px;">
                 <tr style="background-color: #f2f2f2;">
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">PdL</th>
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Area</th>
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Impianto</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Tempo Rimanente</th>
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Esito</th>
                 </tr>
                 {rows}

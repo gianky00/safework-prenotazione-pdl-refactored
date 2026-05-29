@@ -154,11 +154,18 @@ def stampa_report_finale(pdl_list: list[PDLData]) -> None:
     table.add_column("PdL", style="success", no_wrap=True)
     table.add_column("AREA", style="#b3e6ff")
     table.add_column("IMPIANTO", style="#e6f7ff")
+    table.add_column("TEMPO RIMANENTE", style="highlight")
     table.add_column("ESITO AUTOMAZIONE", justify="center")
 
     for pdl in pdl_list:
         esito = pdl.stato_script or "NON PROCESSATO"
-        table.add_row(str(pdl.pdl), str(pdl.area), str(pdl.impianto), _get_esito_styled(esito))
+        table.add_row(
+            str(pdl.pdl),
+            str(pdl.area),
+            str(pdl.impianto),
+            str(pdl.tempo_rimanente),
+            _get_esito_styled(esito),
+        )
 
     console.print("\n", table, "\n")
     _stampa_pannello_recap(pdl_list)
@@ -407,7 +414,18 @@ class PDLOrchestrator:
                 )
                 progress.update(main_task, completed=idx_corrente)
 
-                idx_corrente = self._elabora_pdl_loop(progress, main_task, pdl_list, idx_corrente, url, user, pwd)
+                idx_corrente, automator = self._elabora_pdl_loop(
+                    progress, main_task, pdl_list, idx_corrente, url, user, pwd
+                )
+
+                # --- FASE 2.1: ESTRAZIONE TEMPI RIMANENTI ---
+                if (
+                    not self.dry_run
+                    and automator
+                    and any(p.stato_script == "Prenotazione Eseguita" for p in pdl_list)
+                ):
+                    progress.update(main_task, description="[info]🕒 Estrazione tempi rimanenti...[/info]")
+                    automator.estrai_tempi_rimanenti(pdl_list)
 
                 # --- FASE 3: REPORTING ---
                 if idx_corrente >= len(pdl_list):

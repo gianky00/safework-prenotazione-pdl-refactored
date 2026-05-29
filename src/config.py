@@ -74,6 +74,12 @@ class Config:
     ]
     TASTO_SALVA_PRENOTAZIONE_SELECTORS: ClassVar[list[tuple[str, str]]] = [(By.ID, "btnSalva")]
 
+    # Lista PDL Prenotati e Tempi Rimanenti
+    BTN_LISTA_PRENOTATI_SELECTORS: ClassVar[list[tuple[str, str]]] = [(By.ID, "divPrenotazione")]
+    TABELLA_PRENOTAZIONI_ROWS_SELECTORS: ClassVar[list[tuple[str, str]]] = [(By.CSS_SELECTOR, ".tabulator-row")]
+    CELL_NUM_PERMESSO_SELECTOR: ClassVar[str] = "[tabulator-field='NumPermesso']"
+    CELL_TEMPO_RIMANENTE_SELECTOR: ClassVar[str] = "[tabulator-field='TempoRimanente']"
+
     MSG_PDL_NON_TROVATO_SELECTORS: ClassVar[list[tuple[str, str]]] = [
         (
             By.XPATH,

@@ -33,3 +33,4 @@ class PDLData:
     personale_excel: str = ""
     impianto: str = ""
     stato_script: str = "Non Processato"
+    tempo_rimanente: str = ""
