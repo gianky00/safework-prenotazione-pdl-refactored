@@ -156,11 +156,11 @@ class PrinterManager:
         successi = sum(1 for p in pdl_list if "successo" in str(p.stato_script).lower())
         errori = len(pdl_list) - successi
         
-        dash_style_label = ParagraphStyle('DashLabel', fontSize=9, alignment=1, textColor=colors.grey)
+        dash_style_label = ParagraphStyle('DashLabel', fontSize=8, alignment=1, textColor=colors.grey)
         dash_style_value = ParagraphStyle('DashValue', fontSize=16, alignment=1, fontName='Helvetica-Bold')
         
         dash_data = [
-            [Paragraph("TOTALE PDL", dash_style_label), Paragraph("SUCCESSI", dash_style_label), Paragraph("ERRORI / PENDING", dash_style_label)],
+            [Paragraph("TOTALE PDL", dash_style_label), Paragraph("PRENOTAZIONI ESEGUITE", dash_style_label), Paragraph("PRENOTAZIONI NON ESEGUITE", dash_style_label)],
             [Paragraph(str(len(pdl_list)), dash_style_value), Paragraph(str(successi), dash_style_value), Paragraph(str(errori), dash_style_value)]
         ]
         
