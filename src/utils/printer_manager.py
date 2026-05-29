@@ -153,18 +153,25 @@ class PrinterManager:
         elements.append(Spacer(1, 0.8*cm))
 
         # --- 2. DASHBOARD DI RIEPILOGO ---
-        successi = sum(1 for p in pdl_list if "successo" in str(p.stato_script).lower())
-        errori = len(pdl_list) - successi
+        eseguite = sum(1 for p in pdl_list if "successo" in str(p.stato_script).lower())
+        gia_prenotate = sum(1 for p in pdl_list if "già prenotato" in str(p.stato_script).lower())
+        errori = len(pdl_list) - eseguite - gia_prenotate
         
-        dash_style_label = ParagraphStyle('DashLabel', fontSize=8, alignment=1, textColor=colors.grey)
-        dash_style_value = ParagraphStyle('DashValue', fontSize=16, alignment=1, fontName='Helvetica-Bold')
+        dash_style_label = ParagraphStyle('DashLabel', fontSize=7, alignment=1, textColor=colors.grey)
+        dash_style_value = ParagraphStyle('DashValue', fontSize=14, alignment=1, fontName='Helvetica-Bold')
         
         dash_data = [
-            [Paragraph("TOTALE PDL", dash_style_label), Paragraph("PRENOTAZIONI ESEGUITE", dash_style_label), Paragraph("PRENOTAZIONI NON ESEGUITE", dash_style_label)],
-            [Paragraph(str(len(pdl_list)), dash_style_value), Paragraph(str(successi), dash_style_value), Paragraph(str(errori), dash_style_value)]
+            [Paragraph("TOTALE PDL", dash_style_label), 
+             Paragraph("ESEGUITE OGGI", dash_style_label), 
+             Paragraph("GIÀ PRENOTATE", dash_style_label), 
+             Paragraph("NON ESEGUITE", dash_style_label)],
+            [Paragraph(str(len(pdl_list)), dash_style_value), 
+             Paragraph(str(eseguite), dash_style_value), 
+             Paragraph(str(gia_prenotate), dash_style_value), 
+             Paragraph(str(errori), dash_style_value)]
         ]
         
-        dash_table = Table(dash_data, colWidths=[6*cm, 6*cm, 6*cm])
+        dash_table = Table(dash_data, colWidths=[4.5*cm, 4.5*cm, 4.5*cm, 4.5*cm])
         dash_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
             ('BOX', (0, 0), (-1, -1), 0.5, colors.lightgrey),
