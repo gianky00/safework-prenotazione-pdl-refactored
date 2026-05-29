@@ -188,7 +188,7 @@ class SafeWorkAutomator:
         try:
             btn = self._find_element(Config.TIMEOUT_ALERT_OK_BUTTON_SELECTORS, 5, ec.element_to_be_clickable)
             btn.click()
-            time.sleep(Config.PAUSE_GENERAL_MEDIUM)
+            time.sleep(Config.PAUSA_TRA_PDL)
         except Exception:
             logger.warning("Impossibile chiudere l'alert di timeout.")
 
@@ -284,21 +284,25 @@ class SafeWorkAutomator:
                 if btn.is_displayed():
                     self._esegui_click_robusto(btn, "Pulsante Lista Prenotati")
                     break
-            
+
             time.sleep(3)  # Attesa rendering dati
             self._attendi_caricamento_pagina()
 
             # Scansione righe (escludendo i gruppi)
             rows = self.driver.find_elements(*Config.TABELLA_PRENOTAZIONI_ROWS_SELECTORS[0])
             pdl_map = {p.pdl: p for p in pdl_list if p.pdl}
-            
+
             for row in rows:
                 try:
-                    if "tabulator-group" in row.get_attribute("class"):
+                    row_class = row.get_attribute("class") or ""
+                    if "tabulator-group" in row_class:
                         continue
-                        
-                    pdl_num = row.find_element(By.CSS_SELECTOR, Config.CELL_NUM_PERMESSO_SELECTOR).get_attribute("innerText").strip()
-                    tempo = row.find_element(By.CSS_SELECTOR, Config.CELL_TEMPO_RIMANENTE_SELECTOR).get_attribute("innerText").strip()
+
+                    pdl_num_raw = row.find_element(By.CSS_SELECTOR, Config.CELL_NUM_PERMESSO_SELECTOR).get_attribute("innerText")
+                    tempo_raw = row.find_element(By.CSS_SELECTOR, Config.CELL_TEMPO_RIMANENTE_SELECTOR).get_attribute("innerText")
+
+                    pdl_num = (pdl_num_raw or "").strip()
+                    tempo = (tempo_raw or "").strip()
 
                     if pdl_num in pdl_map:
                         pdl_map[pdl_num].tempo_rimanente = tempo

@@ -1,8 +1,8 @@
 """Modulo per la gestione dell'invio di report via email tramite Outlook."""
 
-import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 import pythoncom
 import win32com.client
 from loguru import logger
@@ -32,12 +32,15 @@ class EmailManager:
             else:
                 status_color = "#ff8c00"  # Arancione Warning/Info
 
+            # Pulisce l'orario togliendo le parentesi
+            orario_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
+
             rows += f"""
             <tr>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.pdl}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.area}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.impianto}</td>
-                <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{pdl.tempo_rimanente}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap;">{orario_pulito}</td>
                 <td style="border: 1px solid #ddd; padding: 8px; white-space: nowrap; color: {status_color};"><b>{pdl.stato_script}</b></td>
             </tr>
             """
@@ -52,7 +55,7 @@ class EmailManager:
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">PdL</th>
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Area</th>
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Impianto</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Tempo Rimanente</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Orario prenotazione</th>
                     <th style="border: 1px solid #ddd; padding: 8px; text-align: left; white-space: nowrap;">Esito</th>
                 </tr>
                 {rows}

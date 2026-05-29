@@ -1,12 +1,14 @@
 """Test unitari per il modulo automation/actions.py."""
 
 from unittest.mock import MagicMock, patch
+
 import pytest
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+
 from src.automation.actions import SafeWorkAutomator
 from src.config import Config
-from src.models import AutomationError, PDLData, TimeoutAlertError
+from src.models import AutomationError, PDLData
 
 
 @pytest.fixture

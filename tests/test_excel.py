@@ -1,12 +1,12 @@
 """Test unitari per il modulo excel/processor.py."""
 
-import os
 from unittest.mock import MagicMock, patch
+
 import pytest
-import openpyxl
+
 from src.config import Config
 from src.excel.processor import ExcelProcessor
-from src.models import CriticalConfigError, PDLData
+from src.models import CriticalConfigError
 
 
 @pytest.fixture
@@ -130,7 +130,7 @@ def test_get_pdl_list_from_excel_bulk(mock_datetime: MagicMock, mock_exists: Mag
     mock_openpyxl.load_workbook.return_value = mock_wb
     mock_sheet = MagicMock()
     mock_wb.__getitem__.return_value = mock_sheet
-    
+
     # Prepariamo una riga con marker 'X' a colonna giorno (indice 7)
     row_valida = [None] * 20
     row_valida[4] = "PDL-99"  # pdl

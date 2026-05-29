@@ -1,7 +1,9 @@
 """Test unitari per il modulo automation/driver.py."""
 
 from unittest.mock import MagicMock, patch
+
 import pytest
+
 from src.automation.driver import WebDriverManager
 from src.models import AutomationError
 

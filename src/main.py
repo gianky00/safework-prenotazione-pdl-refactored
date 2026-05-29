@@ -42,6 +42,7 @@ from .models import (
     TimeoutAlertError,
 )
 from .utils.email_manager import EmailManager
+from .utils.printer_manager import PrinterManager
 
 # SOPPRESSIONE WARNING E LOG DI SISTEMA
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -154,16 +155,19 @@ def stampa_report_finale(pdl_list: list[PDLData]) -> None:
     table.add_column("PdL", style="success", no_wrap=True)
     table.add_column("AREA", style="#b3e6ff")
     table.add_column("IMPIANTO", style="#e6f7ff")
-    table.add_column("TEMPO RIMANENTE", style="highlight")
+    table.add_column("ORARIO PRENOTAZIONE", style="highlight")
     table.add_column("ESITO AUTOMAZIONE", justify="center")
 
     for pdl in pdl_list:
         esito = pdl.stato_script or "NON PROCESSATO"
+        # Pulisce l'orario togliendo le parentesi
+        orario_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
+
         table.add_row(
             str(pdl.pdl),
             str(pdl.area),
             str(pdl.impianto),
-            str(pdl.tempo_rimanente),
+            orario_pulito,
             _get_esito_styled(esito),
         )
 
@@ -174,13 +178,13 @@ def stampa_report_finale(pdl_list: list[PDLData]) -> None:
 def _stampa_pannello_recap(pdl_list: list[PDLData]) -> None:
     """Calcola le statistiche e stampa il pannello di recap finale."""
     success_keys = ["OK", "COMPLETATO", "ESEGUITA"]
-    
+
     successi = sum(
         1
         for p in pdl_list
         if p.stato_script and any(k in p.stato_script.upper() for k in success_keys)
     )
-    
+
     # Stati informativi ma non considerati anomalie tecniche
     gia_prenotati = sum(
         1 for p in pdl_list if p.stato_script and "GIÀ PRENOTATO" in p.stato_script.upper()
@@ -188,7 +192,7 @@ def _stampa_pannello_recap(pdl_list: list[PDLData]) -> None:
     non_programmati = sum(
         1 for p in pdl_list if p.stato_script and "NON PROGRAMMATO" in p.stato_script.upper()
     )
-    
+
     anomalie = len(pdl_list) - successi - gia_prenotati - non_programmati
 
     summary_text = f"""[#00d2ff]🔹 PdL Totali in lista:[/#00d2ff] [highlight]{len(pdl_list)}[/highlight]
@@ -286,6 +290,7 @@ class PDLOrchestrator:
         self.driver_manager = WebDriverManager(headless=self.headless, start_maximized=True)
         self.state = StateManager(os.path.join(Config.SCRIPT_DIR, Config.FILE_STATO_PROCESSO))
         self.email = EmailManager()
+        self.printer = PrinterManager()
 
     def _inizializza_dati_preparazione(self, progress: Progress, task_id: Any) -> tuple[str, str, str, list[PDLData]]:
         """Esegue la fase 1: recupero URL, credenziali e lista PDL."""
@@ -439,6 +444,12 @@ class PDLOrchestrator:
                     stampa_report_finale(pdl_list)
                     self.state.rimuovi_stato()
                     self._invia_report_email(pdl_list, success=True)
+
+                    # --- STAMPA FISICA ---
+                    logger.info("Invio report alla stampante fisica...")
+                    self.printer.print_pdl_report(pdl_list)
+
+                    logger.success("Processo completato. Report generato, inviato e stampato.")
 
                 timed_input("\nOperazione conclusa. Premi INVIO per uscire (timeout 30m)... ", 1800)
 

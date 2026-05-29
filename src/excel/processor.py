@@ -156,7 +156,7 @@ class ExcelProcessor:
             # Se prenotazione_oggi_per_oggi è False -> "OGGI PER DOMANI" (B6="SI")
             valore_flag = "NO" if self.prenotazione_oggi_per_oggi else "SI"
             modalita_str = "OGGI PER OGGI" if self.prenotazione_oggi_per_oggi else "OGGI PER DOMANI"
-            
+
             logger.info(f"Configurazione modalità '{modalita_str}': imposto B6 su '{valore_flag}'")
             try:
                 sheet_ins = workbook.Sheets(Config.EXCEL_SHEET_INSERIMENTO_DATI)
@@ -184,7 +184,7 @@ class ExcelProcessor:
                 logger.info(f"Esecuzione reset finale filtri '{Config.MACRO_SEQ_3}'...")
                 with contextlib.suppress(Exception):
                     excel_app.Application.Run(Config.MACRO_SEQ_3)
-                
+
                 # Ripristino flag prenotazione "OGGI" su "NO" per debug/consistenza futura
                 logger.info("Ripristino modalità standard: imposto B6 su 'NO'")
                 try:
@@ -192,7 +192,7 @@ class ExcelProcessor:
                     sheet_ins.Range(Config.CELLA_PRENOTAZIONE_OGGI).Value = "NO"
                 except Exception as e:
                     logger.warning(f"Impossibile ripristinare il flag B6 su 'NO': {e}")
-                
+
                 workbook.Save()
 
             logger.info(f"Sessione Excel completata. Estratti {len(extracted_data)} PDL.")

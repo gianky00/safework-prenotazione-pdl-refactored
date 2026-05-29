@@ -1,9 +1,10 @@
 """Test unitari per il modulo main.py."""
 
-import json
 import os
 from unittest.mock import MagicMock, patch
+
 import pytest
+
 from src.main import PDLOrchestrator, StateManager, main
 from src.models import PDLData
 
