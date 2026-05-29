@@ -163,32 +163,18 @@ class PrinterManager:
         elements.append(dash_table)
         elements.append(Spacer(1, 1*cm))
 
-        # --- 3. TABELLA DETTAGLIATA ---
-        elements.append(Paragraph("<b>DETTAGLIO ATTIVITÀ</b>", ParagraphStyle('SectionTitle', fontSize=10, spaceAfter=8)))
+        # --- 3. TABELLA DETTAGLIATA (RAGGRUPPATA PER AREA) ---
+        elements.append(Paragraph("<b>DETTAGLIO ATTIVITÀ PER AREA</b>", ParagraphStyle('SectionTitle', fontSize=10, spaceAfter=8)))
         
-        data = [['PdL', 'Area / Reparto', 'Impianto', 'Orario', 'Stato Esito']]
-
-        for pdl in pdl_list:
-            tempo_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
-            # Abbrevia lo stato se troppo lungo
-            stato = str(pdl.stato_script)
-            if len(stato) > 20:
-                stato = stato[:17] + "..."
-
-            data.append([
-                Paragraph(f"<b>{pdl.pdl}</b>", styles['Normal']),
-                str(pdl.area),
-                str(pdl.impianto),
-                tempo_pulito,
-                Paragraph(f"<i>{stato}</i>", styles['Normal'])
-            ])
-
-        col_widths = [3*cm, 4*cm, 4*cm, 3.5*cm, 3.5*cm]
-        table = Table(data, colWidths=col_widths, repeatRows=1)
-
-        # Stile Moderno B/N
+        # Ordinamento dei dati per Area per garantire il raggruppamento corretto
+        pdl_list_sorted = sorted(pdl_list, key=lambda x: str(x.area))
+        
+        data = [['PdL', 'Impianto', 'Orario', 'Stato Esito']]
+        current_area = None
+        
+        # Stili per la tabella
         table_style = TableStyle([
-            # Intestazione: Sfondo nero, testo bianco
+            # Intestazione Generale: Sfondo nero, testo bianco
             ('BACKGROUND', (0, 0), (-1, 0), colors.black),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -197,19 +183,53 @@ class PrinterManager:
             ('FONTSIZE', (0, 0), (-1, 0), 10),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
             ('TOPPADDING', (0, 0), (-1, 0), 10),
-
-            # Righe: Zebra striping e linee orizzontali sottili
-            ('GRID', (0, 0), (-1, -1), 0, colors.white), # Rimuove griglia standard
-            ('LINEBELOW', (0, 0), (-1, 0), 1.5, colors.black), # Linea sotto header
-            ('LINEBELOW', (0, 1), (-1, -1), 0.2, colors.lightgrey), # Linee tra righe
-            
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('TOPPADDING', (0, 1), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.whitesmoke]),
+            ('GRID', (0, 0), (-1, -1), 0, colors.white), 
         ])
 
+        row_index = 1
+        for pdl in pdl_list_sorted:
+            area_pdl = str(pdl.area or "AREA NON SPECIFICATA")
+            
+            # Se l'area cambia, aggiungiamo una riga di separazione/intestazione area
+            if area_pdl != current_area:
+                current_area = area_pdl
+                # Riga di intestazione Area (Colspan su tutte le colonne)
+                data.append([Paragraph(f"<b>ZONA: {current_area}</b>", styles['Normal']), "", "", ""])
+                table_style.add('BACKGROUND', (0, row_index), (-1, row_index), colors.lightgrey)
+                table_style.add('SPAN', (0, row_index), (-1, row_index))
+                table_style.add('ALIGN', (0, row_index), (-1, row_index), 'LEFT')
+                table_style.add('TOPPADDING', (0, row_index), (-1, row_index), 6)
+                table_style.add('BOTTOMPADDING', (0, row_index), (-1, row_index), 6)
+                row_index += 1
+
+            tempo_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
+            stato = str(pdl.stato_script)
+            if len(stato) > 25:
+                stato = stato[:22] + "..."
+
+            data.append([
+                Paragraph(f"<b>{pdl.pdl}</b>", styles['Normal']),
+                str(pdl.impianto),
+                tempo_pulito,
+                Paragraph(f"<i>{stato}</i>", styles['Normal'])
+            ])
+            
+            # Stile righe dati
+            table_style.add('LINEBELOW', (0, row_index), (-1, row_index), 0.2, colors.lightgrey)
+            if row_index % 2 == 0:
+                table_style.add('BACKGROUND', (0, row_index), (-1, row_index), colors.whitesmoke)
+            
+            row_index += 1
+
+        col_widths = [4*cm, 5*cm, 4.5*cm, 4.5*cm]
+        table = Table(data, colWidths=col_widths, repeatRows=1)
+
+        # Stile finale righe dati
+        table_style.add('FONTNAME', (0, 1), (-1, -1), 'Helvetica')
+        table_style.add('FONTSIZE', (0, 1), (-1, -1), 9)
+        table_style.add('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
+        table_style.add('ALIGN', (0, 1), (-1, -1), 'CENTER')
+        
         table.setStyle(table_style)
         elements.append(table)
 
