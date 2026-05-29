@@ -49,7 +49,7 @@ class PrinterManager:
             file_path = os.path.join(archive_dir, file_name)
 
             # Generazione contenuto PDF
-            self._generate_pdf(pdl_list, file_path, project_root)
+            self._generate_pdf(pdl_list, file_path, project_root, now)
             logger.info(f"Report PDF archiviato: {file_path}")
 
             if not self.printer_name:
