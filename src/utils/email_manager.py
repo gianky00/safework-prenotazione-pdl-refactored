@@ -32,7 +32,7 @@ class EmailManager:
         errori = len(pdl_list) - eseguite - gia_prenotate
 
         # --- RAGGRUPPAMENTO PER AREA ---
-        areas = {}
+        areas: dict[str, list[PDLData]] = {}
         for pdl in pdl_list:
             area_name = str(pdl.area or "AREA NON SPECIFICATA").upper()
             if area_name not in areas:
@@ -41,6 +41,7 @@ class EmailManager:
         sorted_areas = sorted(areas.keys())
 
         # --- COSTRUZIONE TABELLE PER AREA ---
+        max_status_len = 30
         tables_html = ""
         for area_name in sorted_areas:
             rows_html = ""
@@ -48,7 +49,7 @@ class EmailManager:
                 bg_color = "#f9f9f9" if i % 2 != 0 else "#ffffff"
                 orario_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
                 stato = str(pdl.stato_script)
-                if len(stato) > 30: stato = stato[:27] + "..."
+                if len(stato) > max_status_len: stato = stato[:max_status_len-3] + "..."
 
                 rows_html += f"""
                 <tr style="background-color: {bg_color}; text-align: center;">

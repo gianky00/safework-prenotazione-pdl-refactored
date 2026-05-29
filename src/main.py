@@ -451,8 +451,6 @@ class PDLOrchestrator:
 
                     logger.success("Processo completato. Report generato, inviato e stampato.")
 
-                timed_input("\nOperazione conclusa. Premi INVIO per uscire (timeout 30m)... ", 1800)
-
             except Exception as e:
                 logger.critical(f"Errore fatale imprevisto: {e}")
                 tb = traceback.format_exc()
@@ -472,7 +470,12 @@ def main() -> None:
     parser.set_defaults(headless=False)
     args = parser.parse_args()
 
-    orchestrator = PDLOrchestrator(dry_run=args.dry_run, secure_pwd=args.secure, headless=args.headless, today=args.today)
+    orchestrator = PDLOrchestrator(
+        dry_run=args.dry_run,
+        secure_pwd=args.secure,
+        headless=Config.HEADLESS or args.headless,
+        today=args.today
+    )
     orchestrator.run()
 
 
