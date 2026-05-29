@@ -126,7 +126,7 @@ class PrinterManager:
         )
         
         header_data = []
-        disclaimer_text = "Documento strettamente riservato ad uso interno - COEMI s.r.l."
+        disclaimer_text = "Documento strettamente riservato ad uso interno<br/>COEMI s.r.l."
         
         if os.path.exists(logo_path):
             img = Image(logo_path, width=2.5*cm, height=2.5*cm)
