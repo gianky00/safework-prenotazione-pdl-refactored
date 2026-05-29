@@ -268,7 +268,9 @@ class PDLOrchestrator:
             os.path.join(Config.SCRIPT_DIR, "prenotazione_pdl.log"),
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
             mode="w",
-            level="DEBUG"
+            level="DEBUG",
+            encoding="utf-8",
+            enqueue=True
         )
 
         self.config_path = os.path.join(Config.SCRIPT_DIR, Config.EXCEL_FILE_CONFIG_NAME)
