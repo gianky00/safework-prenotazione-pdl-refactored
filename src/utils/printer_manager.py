@@ -132,9 +132,9 @@ class PrinterManager:
             img = Image(logo_path, width=2.5*cm, height=2.5*cm)
             # La cella sinistra contiene Logo + Spacer + Disclaimer
             left_cell = [img, Spacer(1, 0.3*cm), Paragraph(disclaimer_text, disclaimer_style)]
-            header_data = [[left_cell, Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{datetime.now().strftime('%y%m%d')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
+            header_data = [[left_cell, Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{now.strftime('%y%m%d')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
         else:
-            header_data = [[Paragraph(f"<b>COEMI S.R.L.</b><br/><font size='6'>{disclaimer_text}</font>", styles['Normal']), Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
+            header_data = [[Paragraph(f"<b>COEMI S.R.L.</b><br/><font size='6'>{disclaimer_text}</font>", styles['Normal']), Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{now.strftime('%y%m%d')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
             
         header_table = Table(header_data, colWidths=[8*cm, 10*cm])
         header_table.setStyle(TableStyle([
