@@ -254,8 +254,7 @@ class PrinterManager:
         # --- 4. FOOTER ---
         elements.append(Spacer(1, 1.5*cm))
         footer_data = [
-            [Paragraph("Documento strettamente riservato ad uso interno - COEMI S.r.l.", ParagraphStyle('F1', fontSize=7, textColor=colors.grey)), 
-             Paragraph("Pagina 1", ParagraphStyle('F2', fontSize=7, alignment=2, textColor=colors.grey))]
+            ["", Paragraph("Pagina 1", ParagraphStyle('F2', fontSize=7, alignment=2, textColor=colors.grey))]
         ]
         footer_table = Table(footer_data, colWidths=[11*cm, 7*cm])
         elements.append(footer_table)
