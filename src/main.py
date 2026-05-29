@@ -290,7 +290,7 @@ class PDLOrchestrator:
         self.driver_manager = WebDriverManager(headless=self.headless, start_maximized=True)
         self.state = StateManager(os.path.join(Config.SCRIPT_DIR, Config.FILE_STATO_PROCESSO))
         self.email = EmailManager()
-        self.printer = PrinterManager()
+        self.printer = PrinterManager(printer_name="NRG MP 3555 PCL 6")
 
     def _inizializza_dati_preparazione(self, progress: Progress, task_id: Any) -> tuple[str, str, str, list[PDLData]]:
         """Esegue la fase 1: recupero URL, credenziali e lista PDL."""
