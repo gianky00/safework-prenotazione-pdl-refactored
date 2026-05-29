@@ -274,7 +274,8 @@ class PDLOrchestrator:
         logger.add(
             os.path.join(Config.SCRIPT_DIR, "prenotazione_pdl.log"),
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
-            mode="w",
+            rotation="00:00",  # Opzionale: ruota a mezzanotte
+            mode="w",         # 'w' sovrascrive il file esistente ad ogni apertura
             level="DEBUG",
             encoding="utf-8",
             enqueue=True
@@ -309,9 +310,10 @@ class PDLOrchestrator:
         url: str,
         user: str,
         pwd: str,
-    ) -> int:
+    ) -> tuple[int, SafeWorkAutomator | None]:
         """Gestisce il loop principale di elaborazione dei PDL con gestione dei riavvii driver."""
         tentativi_falliti = 0
+        automator: SafeWorkAutomator | None = None
         while idx_corrente < len(pdl_list):
             try:
                 progress.update(task_id, description="[info]🌐 Accesso al portale in corso...[/info]")
@@ -335,11 +337,12 @@ class PDLOrchestrator:
                 logger.error(f"Errore di sessione: {e}. Riavvio driver...")
                 tentativi_falliti += 1
                 self.driver_manager.quit_driver()
+                automator = None
                 if tentativi_falliti >= Config.MAX_SETUP_ATTEMPTS:
                     console.print("[error]❌ Raggiunto numero massimo di tentativi di riavvio.[/error]")
                     break
                 time.sleep(Config.PAUSA_TRA_TENTATIVI_SETUP_FALLITI)
-        return idx_corrente
+        return idx_corrente, automator
 
     def _invia_report_email(self, pdl_list: list[PDLData], success: bool, errore: str | None = None) -> None:
         """
@@ -419,10 +422,11 @@ class PDLOrchestrator:
                 )
 
                 # --- FASE 2.1: ESTRAZIONE TEMPI RIMANENTI ---
+                success_keywords = ["PRENOTAZIONE ESEGUITA", "GIÀ PRENOTATO"]
                 if (
                     not self.dry_run
                     and automator
-                    and any(p.stato_script == "Prenotazione Eseguita" for p in pdl_list)
+                    and any(p.stato_script and p.stato_script.upper() in success_keywords for p in pdl_list)
                 ):
                     progress.update(main_task, description="[info]🕒 Estrazione tempi rimanenti...[/info]")
                     automator.estrai_tempi_rimanenti(pdl_list)
@@ -454,7 +458,7 @@ def main() -> None:
     parser.add_argument("--secure", action="store_true", help="Richiede la password interattivamente.")
     parser.add_argument("--headless", action="store_true", help="Avvia il browser in modalità headless (background).")
     parser.add_argument("--today", action="store_true", help="Modalità OGGI PER OGGI (B6=NO). Default: OGGI PER DOMANI (B6=SI).")
-    parser.set_defaults(headless=True)
+    parser.set_defaults(headless=False)
     args = parser.parse_args()
 
     orchestrator = PDLOrchestrator(dry_run=args.dry_run, secure_pwd=args.secure, headless=args.headless, today=args.today)

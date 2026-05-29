@@ -1,12 +1,162 @@
-2026-05-29 07:01:49 | INFO     | ExcelProcessor inizializzato. Config: 'C:\Users\Coemi\Desktop\SCRIPT\safework\prenotazione_pdl\parametri prenotazione pdl.xlsx'
-2026-05-29 07:01:49 | INFO     | WebDriverManager inizializzato (headless=True, start_maximized=True)
-2026-05-29 07:01:49 | INFO     | Avvio automazione (Dry Run: True)
-2026-05-29 07:01:49 | INFO     | Percorso file dati PdL risolto: \\192.168.11.251\Database_Tecnico_SMI\cartella strumentale condivisa\ALLEGRETTI\ATTIVITA_PROGRAMMATE.xlsm
-2026-05-29 07:01:49 | INFO     | Cache PDL vuota. Esecuzione estrazione rapida (read-only)...
-2026-05-29 07:01:49 | INFO     | Tentativo di chiusura forzata di eventuali processi Excel attivi...
-2026-05-29 07:01:54 | INFO     | Apertura workbook: \\192.168.11.251\Database_Tecnico_SMI\cartella strumentale condivisa\ALLEGRETTI\ATTIVITA_PROGRAMMATE.xlsm
-2026-05-29 07:02:03 | INFO     | Configurazione modalità 'OGGI PER DOMANI': imposto B6 su 'SI'
-2026-05-29 07:02:03 | INFO     | Esecuzione macro di filtraggio 'FiltraProgrGiornalieraRiepilogoDinamico'...
-2026-05-29 07:02:12 | INFO     | Sessione Excel completata. Estratti 0 PDL.
-2026-05-29 07:02:13 | INFO     | Preparazione ed invio del report email riepilogativo...
-2026-05-29 07:02:13 | INFO     | Email inviata con successo a gianky.allegretti@gmail.com
+2026-05-29 07:26:53 | INFO     | ExcelProcessor inizializzato. Config: 'C:\Users\Coemi\Desktop\SCRIPT\safework\prenotazione_pdl\parametri prenotazione pdl.xlsx'
+2026-05-29 07:26:53 | INFO     | WebDriverManager inizializzato (headless=False, start_maximized=True)
+2026-05-29 07:26:53 | INFO     | Avvio automazione (Dry Run: False)
+2026-05-29 07:26:53 | INFO     | Percorso file dati PdL risolto: \\192.168.11.251\Database_Tecnico_SMI\cartella strumentale condivisa\ALLEGRETTI\ATTIVITA_PROGRAMMATE.xlsm
+2026-05-29 07:26:53 | INFO     | Tentativo di chiusura forzata di eventuali processi Excel attivi...
+2026-05-29 07:26:59 | INFO     | Apertura workbook: \\192.168.11.251\Database_Tecnico_SMI\cartella strumentale condivisa\ALLEGRETTI\ATTIVITA_PROGRAMMATE.xlsm
+2026-05-29 07:27:08 | INFO     | Configurazione modalità 'OGGI PER OGGI': imposto B6 su 'NO'
+2026-05-29 07:27:08 | INFO     | Esecuzione macro di aggiornamento 'ordina.OrdinaEFormattaTabellaCorrente'...
+2026-05-29 07:27:16 | INFO     | Esecuzione macro di aggiornamento 'Modulo8.aggiornaQuery'...
+2026-05-29 07:27:17 | INFO     | Esecuzione macro di aggiornamento 'Rimuovi_Tutti_I_Filtri.RimuoviTuttiIFiltri'...
+2026-05-29 07:27:19 | INFO     | Esecuzione macro di filtraggio 'FiltraProgrGiornalieraRiepilogoDinamico'...
+2026-05-29 07:27:22 | INFO     | Esecuzione reset finale filtri 'Rimuovi_Tutti_I_Filtri.RimuoviTuttiIFiltri'...
+2026-05-29 07:27:23 | INFO     | Ripristino modalità standard: imposto B6 su 'NO'
+2026-05-29 07:27:24 | INFO     | Sessione Excel completata. Estratti 6 PDL.
+2026-05-29 07:27:26 | INFO     | Creazione di un nuovo WebDriver Chrome.
+2026-05-29 07:27:28 | INFO     | WebDriver Chrome creato con successo.
+2026-05-29 07:27:28 | INFO     | SafeWorkAutomator inizializzato (dry_run=False)
+2026-05-29 07:27:28 | INFO     | Accesso a https://safework.isab.com/# per l'utente gallegretti95
+2026-05-29 07:27:30 | INFO     | Click su 'Dropdown Selezione Sito'
+2026-05-29 07:27:30 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:27:35 | INFO     | Click su 'Opzione ISAB Sud'
+2026-05-29 07:27:35 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:27:39 | INFO     | Inserimento testo in 'Username'
+2026-05-29 07:27:40 | INFO     | Inserimento testo in 'Password'
+2026-05-29 07:27:40 | INFO     | Click su 'Pulsante Login'
+2026-05-29 07:27:40 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:27:45 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:27:49 | INFO     | Login completato con successo.
+2026-05-29 07:27:49 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:28:56 | INFO     | Click su 'Pulsante Home'
+2026-05-29 07:28:56 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:00 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:06 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:12 | INFO     | Pagina Prenotazione PDL raggiunta.
+2026-05-29 07:29:12 | INFO     | Elaborazione PDL 586559/C...
+2026-05-29 07:29:12 | INFO     | Inserimento testo in 'Input Ricerca PDL'
+2026-05-29 07:29:12 | INFO     | Click su 'Pulsante Ricerca'
+2026-05-29 07:29:12 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:16 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:22 | INFO     | PDL 586559/C risulta già prenotato.
+2026-05-29 07:29:23 | INFO     | Elaborazione PDL 587028/C...
+2026-05-29 07:29:23 | INFO     | Inserimento testo in 'Input Ricerca PDL'
+2026-05-29 07:29:23 | INFO     | Click su 'Pulsante Ricerca'
+2026-05-29 07:29:23 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:27 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:33 | INFO     | PDL 587028/C risulta già prenotato.
+2026-05-29 07:29:34 | INFO     | Elaborazione PDL 586751/C...
+2026-05-29 07:29:34 | INFO     | Inserimento testo in 'Input Ricerca PDL'
+2026-05-29 07:29:34 | INFO     | Click su 'Pulsante Ricerca'
+2026-05-29 07:29:34 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:38 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:44 | INFO     | PDL 586751/C risulta già prenotato.
+2026-05-29 07:29:44 | INFO     | Elaborazione PDL 587026/C...
+2026-05-29 07:29:44 | INFO     | Inserimento testo in 'Input Ricerca PDL'
+2026-05-29 07:29:45 | INFO     | Click su 'Pulsante Ricerca'
+2026-05-29 07:29:45 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:49 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:29:55 | INFO     | PDL 587026/C risulta già prenotato.
+2026-05-29 07:29:55 | INFO     | Elaborazione PDL 586772/C...
+2026-05-29 07:29:55 | INFO     | Inserimento testo in 'Input Ricerca PDL'
+2026-05-29 07:29:55 | INFO     | Click su 'Pulsante Ricerca'
+2026-05-29 07:29:55 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:30:00 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:30:06 | INFO     | PDL 586772/C risulta già prenotato.
+2026-05-29 07:30:06 | INFO     | Elaborazione PDL 586246/C...
+2026-05-29 07:30:06 | INFO     | Inserimento testo in 'Input Ricerca PDL'
+2026-05-29 07:30:06 | INFO     | Click su 'Pulsante Ricerca'
+2026-05-29 07:30:06 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:30:11 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:30:17 | INFO     | PDL 586246/C risulta già prenotato.
+2026-05-29 07:30:17 | INFO     | DEBUG: Avvio procedura estrazione tempi rimanenti.
+2026-05-29 07:30:17 | INFO     | DEBUG: Trovati 1 pulsanti 'PdL prenotati'.
+2026-05-29 07:30:17 | INFO     | DEBUG: Clicco sul pulsante indice 0 (visibile).
+2026-05-29 07:30:20 | DEBUG    | Verifica indicatori di caricamento...
+2026-05-29 07:30:25 | INFO     | DEBUG: Scansione tabella avviata. Righe dati effettive rilevate: 31
+2026-05-29 07:30:25 | WARNING  | DEBUG: Impossibile trovare celle nella riga 0: Message: no such element: Unable to locate element: {"method":"css selector","selector":".tabulator-cell[tabulator-field='TempoRimanente']"}
+  (Session info: chrome=148.0.7778.179); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff708107de5+14895]
+	chromedriver!GetHandleVerifier [0x7ff708107e50+14900]
+	chromedriver!(No symbol) [0x7ff707e6d5ad]
+	chromedriver!(No symbol) [0x7ff707ec7822]
+	chromedriver!(No symbol) [0x7ff707ec7b2c]
+	chromedriver!(No symbol) [0x7ff707ebb6bc]
+	chromedriver!(No symbol) [0x7ff707ebb566]
+	chromedriver!(No symbol) [0x7ff707f1486f]
+	chromedriver!(No symbol) [0x7ff707eb9df8]
+	chromedriver!(No symbol) [0x7ff707ebace3]
+	chromedriver!GetHandleVerifier [0x7ff70841cc49+3296f9]
+	chromedriver!GetHandleVerifier [0x7ff708417375+323e25]
+	chromedriver!GetHandleVerifier [0x7ff70843bc82+348732]
+	chromedriver!GetHandleVerifier [0x7ff708126045+32af5]
+	chromedriver!GetHandleVerifier [0x7ff70812ecec+3b79c]
+	chromedriver!GetHandleVerifier [0x7ff708111bc4+1e674]
+	chromedriver!GetHandleVerifier [0x7ff708111d54+1e804]
+	chromedriver!GetHandleVerifier [0x7ff7080f60e7+2b97]
+	KERNEL32!BaseThreadInitThunk [0x7fff0c94257d+1d]
+	ntdll!RtlUserThreadStart [0x7fff0e0aaf08+28]
+
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [1] -> PDL: 580005/C | Tempo: 07:33:23 (3 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 580005/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [2] -> PDL: 327814/S | Tempo: 08:24:23 (54 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327814/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [3] -> PDL: 327821/S | Tempo: 08:27:23 (57 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327821/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [4] -> PDL: 327820/S | Tempo: 08:30:23 (1 ore )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327820/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [5] -> PDL: 327825/S | Tempo: 08:33:23 (1 ore 3 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327825/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [6] -> PDL: 327819/S | Tempo: 08:36:23 (1 ore 6 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327819/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [7] -> PDL: 327826/S | Tempo: 08:39:23 (1 ore 9 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327826/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [8] -> PDL: 586276/C | Tempo: 08:42:23 (1 ore 12 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 586276/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [9] -> PDL: 586277/C | Tempo: 08:45:23 (1 ore 15 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 586277/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [10] -> PDL: 327818/S | Tempo: 08:48:23 (1 ore 18 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327818/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [11] -> PDL: 327817/S | Tempo: 08:51:23 (1 ore 21 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327817/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [12] -> PDL: 327822/S | Tempo: 08:54:23 (1 ore 24 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327822/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [13] -> PDL: 327797/S | Tempo: 07:42:23 (12 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327797/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [14] -> PDL: 327813/S | Tempo: 07:45:23 (15 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327813/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [15] -> PDL: 327619/S | Tempo: 08:03:23 (33 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 327619/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [16] -> PDL: 586881/C | Tempo: 08:06:23 (36 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 586881/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:25 | DEBUG    | DEBUG: Riga [17] -> PDL: 585188/C | Tempo: 08:09:23 (39 minuti )
+2026-05-29 07:30:25 | DEBUG    | DEBUG: PDL 585188/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [18] -> PDL: 586876/C | Tempo: 08:12:23 (42 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 586876/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [19] -> PDL: 579926/C | Tempo: 08:51:23 (1 ore 21 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 579926/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [20] -> PDL: 327896/S | Tempo: 08:54:23 (1 ore 24 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 327896/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [21] -> PDL: 587382/C | Tempo: 08:57:23 (1 ore 27 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 587382/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [22] -> PDL: 587076/C | Tempo: 09:15:23 (1 ore 45 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 587076/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [23] -> PDL: 587195/C | Tempo: 09:21:23 (1 ore 51 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 587195/C trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [24] -> PDL: 586559/C | Tempo: 09:45:23 (2 ore 15 minuti )
+2026-05-29 07:30:26 | SUCCESS  | DEBUG: MATCH TROVATO! PDL 586559/C -> Tempo: 09:45:23 (2 ore 15 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [25] -> PDL: 587028/C | Tempo: 09:48:23 (2 ore 18 minuti )
+2026-05-29 07:30:26 | SUCCESS  | DEBUG: MATCH TROVATO! PDL 587028/C -> Tempo: 09:48:23 (2 ore 18 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [26] -> PDL: 586751/C | Tempo: 09:51:23 (2 ore 21 minuti )
+2026-05-29 07:30:26 | SUCCESS  | DEBUG: MATCH TROVATO! PDL 586751/C -> Tempo: 09:51:23 (2 ore 21 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [27] -> PDL: 587026/C | Tempo: 09:54:23 (2 ore 24 minuti )
+2026-05-29 07:30:26 | SUCCESS  | DEBUG: MATCH TROVATO! PDL 587026/C -> Tempo: 09:54:23 (2 ore 24 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [28] -> PDL: 586772/C | Tempo: 09:57:23 (2 ore 27 minuti )
+2026-05-29 07:30:26 | SUCCESS  | DEBUG: MATCH TROVATO! PDL 586772/C -> Tempo: 09:57:23 (2 ore 27 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [29] -> PDL: 586246/C | Tempo: 10:00:23 (2 ore 30 minuti )
+2026-05-29 07:30:26 | SUCCESS  | DEBUG: MATCH TROVATO! PDL 586246/C -> Tempo: 10:00:23 (2 ore 30 minuti )
+2026-05-29 07:30:26 | DEBUG    | DEBUG: Riga [30] -> PDL: 327794/S | Tempo: 07:30:23 (Adesso)
+2026-05-29 07:30:26 | DEBUG    | DEBUG: PDL 327794/S trovato in tabella ma non è nella nostra lista Excel.
+2026-05-29 07:30:26 | INFO     | Preparazione ed invio del report email riepilogativo...
+2026-05-29 07:30:26 | INFO     | Email inviata con successo a gianky.allegretti@gmail.com
+2026-05-29 07:31:14 | INFO     | Chiusura del WebDriver Chrome.

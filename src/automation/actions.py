@@ -274,25 +274,38 @@ class SafeWorkAutomator:
         """Apre la lista delle prenotazioni ed estrae i tempi rimanenti per i PDL in lista."""
         logger.info("Apertura lista PDL prenotati per estrazione tempi rimanenti...")
         try:
-            # Click sul pulsante per aprire la lista (ne esistono due identici, prendiamo il primo visibile)
-            self._click_element(Config.BTN_LISTA_PRENOTATI_SELECTORS, "Pulsante Lista Prenotati")
-            time.sleep(Config.PAUSE_GENERAL_MEDIUM)
+            # Recupero pulsanti
+            btns = self.driver.find_elements(*Config.BTN_LISTA_PRENOTATI_SELECTORS[0])
+            if not btns:
+                return
+
+            # Click sul primo visibile
+            for btn in btns:
+                if btn.is_displayed():
+                    self._esegui_click_robusto(btn, "Pulsante Lista Prenotati")
+                    break
+            
+            time.sleep(3)  # Attesa rendering dati
             self._attendi_caricamento_pagina()
 
-            # Recupero di tutte le righe della tabella
+            # Scansione righe (escludendo i gruppi)
             rows = self.driver.find_elements(*Config.TABELLA_PRENOTAZIONI_ROWS_SELECTORS[0])
-            logger.info(f"Trovate {len(rows)} righe nella tabella delle prenotazioni.")
-
-            # Mappatura rapida PDL -> PDLData per aggiornamento
             pdl_map = {p.pdl: p for p in pdl_list if p.pdl}
-
+            
             for row in rows:
-                with suppress(Exception):
-                    pdl_num = row.find_element(By.CSS_SELECTOR, Config.CELL_NUM_PERMESSO_SELECTOR).text.strip()
+                try:
+                    if "tabulator-group" in row.get_attribute("class"):
+                        continue
+                        
+                    pdl_num = row.find_element(By.CSS_SELECTOR, Config.CELL_NUM_PERMESSO_SELECTOR).get_attribute("innerText").strip()
+                    tempo = row.find_element(By.CSS_SELECTOR, Config.CELL_TEMPO_RIMANENTE_SELECTOR).get_attribute("innerText").strip()
+
                     if pdl_num in pdl_map:
-                        tempo = row.find_element(By.CSS_SELECTOR, Config.CELL_TEMPO_RIMANENTE_SELECTOR).text.strip()
                         pdl_map[pdl_num].tempo_rimanente = tempo
-                        logger.info(f"Estratto tempo per PDL {pdl_num}: {tempo}")
+                        logger.success(f"Tempo estratto per PDL {pdl_num}: {tempo}")
+
+                except (NoSuchElementException, Exception):
+                    continue
 
         except Exception as e:
             logger.error(f"Errore durante l'estrazione dei tempi rimanenti: {e}")
