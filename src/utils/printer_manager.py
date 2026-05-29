@@ -251,15 +251,29 @@ class PrinterManager:
             elements.append(table)
             elements.append(Spacer(1, 0.6*cm))
 
-        # --- 4. FOOTER ---
-        elements.append(Spacer(1, 1.5*cm))
-        footer_data = [
-            ["", Paragraph("Pagina 1", ParagraphStyle('F2', fontSize=7, alignment=2, textColor=colors.grey))]
-        ]
-        footer_table = Table(footer_data, colWidths=[11*cm, 7*cm])
-        elements.append(footer_table)
-
-        # Salvataggio
-        doc.build(elements)
+        # Salvataggio con numerazione pagine dinamica
+        doc.build(elements, onFirstPage=self._add_footer, onLaterPages=self._add_footer)
         logger.info(f"PDF generato con successo: {file_path}")
+
+    def _add_footer(self, canvas, doc) -> None:
+        """Aggiunge il piè di pagina dinamico con numerazione Pagina X di Y."""
+        canvas.saveState()
+        
+        # Linea sottile sopra il footer
+        canvas.setStrokeColor(colors.lightgrey)
+        canvas.setLineWidth(0.5)
+        canvas.line(1.5*cm, 1.5*cm, A4[0] - 1.5*cm, 1.5*cm)
+        
+        # Numerazione pagina
+        page_num = canvas.getPageNumber()
+        # Nota: ReportLab non conosce il totale pagine a priori senza due passaggi, 
+        # ma per semplicità e performance usiamo "Pagina X" o un metodo standard.
+        # Per avere "X di Y" servirebbe un post-processing. Procediamo con "Pagina X".
+        text = f"Pagina {page_num}"
+        
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.grey)
+        canvas.drawRightString(A4[0] - 1.5*cm, 1.1*cm, text)
+        
+        canvas.restoreState()
 
