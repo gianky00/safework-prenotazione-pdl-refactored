@@ -42,7 +42,7 @@ def test_layout():
     
     try:
         logger.info(f"Generazione PDF in corso: {file_path}")
-        pm._generate_pdf(pdl_test, file_path, project_root)
+        pm._generate_pdf(pdl_test, file_path, project_root, datetime.now())
         
         logger.success("PDF generato con successo!")
         print("\n--- TEST LAYOUT COMPLETATO ---")
