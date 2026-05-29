@@ -163,75 +163,74 @@ class PrinterManager:
         elements.append(dash_table)
         elements.append(Spacer(1, 1*cm))
 
-        # --- 3. TABELLA DETTAGLIATA (RAGGRUPPATA PER AREA) ---
-        elements.append(Paragraph("<b>DETTAGLIO ATTIVITÀ PER AREA</b>", ParagraphStyle('SectionTitle', fontSize=10, spaceAfter=8)))
+        # --- 3. DETTAGLIO ATTIVITÀ (TABELLE DISTINTE PER AREA) ---
+        elements.append(Paragraph("<b>DETTAGLIO ATTIVITÀ PER AREA</b>", ParagraphStyle('SectionTitle', fontSize=12, spaceAfter=12)))
         
-        # Ordinamento dei dati per Area per garantire il raggruppamento corretto
-        pdl_list_sorted = sorted(pdl_list, key=lambda x: str(x.area))
-        
-        data = [['PdL', 'Impianto', 'Orario', 'Stato Esito']]
-        current_area = None
-        
-        # Stili per la tabella
-        table_style = TableStyle([
-            # Intestazione Generale: Sfondo nero, testo bianco
-            ('BACKGROUND', (0, 0), (-1, 0), colors.black),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
-            ('TOPPADDING', (0, 0), (-1, 0), 10),
-            ('GRID', (0, 0), (-1, -1), 0, colors.white), 
-        ])
-
-        row_index = 1
-        for pdl in pdl_list_sorted:
-            area_pdl = str(pdl.area or "AREA NON SPECIFICATA")
+        # Raggruppamento dei dati per Area
+        areas = {}
+        for pdl in pdl_list:
+            area_name = str(pdl.area or "AREA NON SPECIFICATA").upper()
+            if area_name not in areas:
+                areas[area_name] = []
+            areas[area_name].append(pdl)
             
-            # Se l'area cambia, aggiungiamo una riga di separazione/intestazione area
-            if area_pdl != current_area:
-                current_area = area_pdl
-                # Riga di intestazione Area (Colspan su tutte le colonne)
-                data.append([Paragraph(f"<b>ZONA: {current_area}</b>", styles['Normal']), "", "", ""])
-                table_style.add('BACKGROUND', (0, row_index), (-1, row_index), colors.lightgrey)
-                table_style.add('SPAN', (0, row_index), (-1, row_index))
-                table_style.add('ALIGN', (0, row_index), (-1, row_index), 'LEFT')
-                table_style.add('TOPPADDING', (0, row_index), (-1, row_index), 6)
-                table_style.add('BOTTOMPADDING', (0, row_index), (-1, row_index), 6)
-                row_index += 1
-
-            tempo_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
-            stato = str(pdl.stato_script)
-            if len(stato) > 25:
-                stato = stato[:22] + "..."
-
-            data.append([
-                Paragraph(f"<b>{pdl.pdl}</b>", styles['Normal']),
-                str(pdl.impianto),
-                tempo_pulito,
-                Paragraph(f"<i>{stato}</i>", styles['Normal'])
+        # Ordinamento alfabetico delle aree per un report consistente
+        sorted_areas = sorted(areas.keys())
+        
+        for area_name in sorted_areas:
+            # Titolo Sezione Area
+            elements.append(Paragraph(f"ZONA: {area_name}", ParagraphStyle('AreaHeader', fontSize=10, fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=6, leftIndent=0)))
+            
+            # Intestazioni tabella per questa Area
+            data = [['PdL', 'Impianto', 'Orario Prenotazione', 'Stato Esito']]
+            
+            for pdl in areas[area_name]:
+                tempo_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
+                stato = str(pdl.stato_script)
+                if len(stato) > 30:
+                    stato = stato[:27] + "..."
+                
+                data.append([
+                    Paragraph(f"<b>{pdl.pdl}</b>", styles['Normal']),
+                    str(pdl.impianto),
+                    tempo_pulito,
+                    Paragraph(f"<i>{stato}</i>", styles['Normal'])
+                ])
+                
+            # Creazione Tabella per l'Area corrente
+            col_widths = [3.5*cm, 5.5*cm, 4.5*cm, 4.5*cm]
+            table = Table(data, colWidths=col_widths, repeatRows=1)
+            
+            # Stile Tabella (Moderno B/N)
+            current_table_style = TableStyle([
+                # Intestazione: Nero/Bianco
+                ('BACKGROUND', (0, 0), (-1, 0), colors.black),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                ('TOPPADDING', (0, 0), (-1, 0), 8),
+                
+                # Corpo: Linee orizzontali e Zebra
+                ('GRID', (0, 0), (-1, -1), 0, colors.white),
+                ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
+                ('LINEBELOW', (0, 1), (-1, -1), 0.1, colors.lightgrey),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('TOPPADDING', (0, 1), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
             ])
             
-            # Stile righe dati
-            table_style.add('LINEBELOW', (0, row_index), (-1, row_index), 0.2, colors.lightgrey)
-            if row_index % 2 == 0:
-                table_style.add('BACKGROUND', (0, row_index), (-1, row_index), colors.whitesmoke)
+            # Zebra striping per la tabella corrente
+            for i in range(1, len(data)):
+                if i % 2 == 0:
+                    current_table_style.add('BACKGROUND', (0, i), (-1, i), colors.whitesmoke)
             
-            row_index += 1
-
-        col_widths = [4*cm, 5*cm, 4.5*cm, 4.5*cm]
-        table = Table(data, colWidths=col_widths, repeatRows=1)
-
-        # Stile finale righe dati
-        table_style.add('FONTNAME', (0, 1), (-1, -1), 'Helvetica')
-        table_style.add('FONTSIZE', (0, 1), (-1, -1), 9)
-        table_style.add('VALIGN', (0, 0), (-1, -1), 'MIDDLE')
-        table_style.add('ALIGN', (0, 1), (-1, -1), 'CENTER')
-        
-        table.setStyle(table_style)
-        elements.append(table)
+            table.setStyle(current_table_style)
+            elements.append(table)
+            elements.append(Spacer(1, 0.6*cm))
 
         # --- 4. FOOTER ---
         elements.append(Spacer(1, 1.5*cm))
