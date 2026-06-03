@@ -1,6 +1,7 @@
 """Test di fumo (smoke tests) per verificare la coerenza del modulo prenotazione_pdl."""
 
 import os
+from unittest.mock import patch
 
 from src.config import Config
 from src.excel.processor import ExcelProcessor
@@ -17,9 +18,12 @@ def test_config_initialization() -> None:
 
 def test_excel_processor_import() -> None:
     """Verifica che l'ExcelProcessor sia importabile ed esponibile."""
-    config_path = os.path.join(Config.SCRIPT_DIR, Config.EXCEL_FILE_CONFIG_NAME)
-    processor = ExcelProcessor(config_path)
-    assert processor.config_file_path == config_path
+    config_path = Config.EXCEL_FILE_CONFIG_PATH
+    # Mockiamo l'esistenza del file per il test di inizializzazione
+    with patch("src.excel.processor.os.path.exists") as mock_exists:
+        mock_exists.return_value = True
+        processor = ExcelProcessor(config_path)
+        assert processor.config_file_path == config_path
 
 
 def test_orchestrator_initialization() -> None:
