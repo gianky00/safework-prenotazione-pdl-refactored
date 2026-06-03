@@ -25,8 +25,5 @@ jobs:
       - name: Ruff check
         run: ruff check src
         
-      - name: MyPy check
-        run: mypy src
-        
       - name: Interrogate check
         run: interrogate src

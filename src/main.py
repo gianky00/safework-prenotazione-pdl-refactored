@@ -96,7 +96,7 @@ def timed_input(prompt: str, timeout: int = 3600) -> str | None:
     start_time = time.time()
     input_str = ""
     while (time.time() - start_time) <= timeout:
-        if msvcrt.kbhit():
+        if msvcrt.kbhit():  # type: ignore[attr-defined]
             res = _gestisci_carattere_input(input_str)
             if res is True:
                 return input_str.strip()
@@ -109,7 +109,7 @@ def timed_input(prompt: str, timeout: int = 3600) -> str | None:
 
 def _gestisci_carattere_input(current_str: str) -> str | bool:
     """Gestisce la lettura di un singolo carattere da console (Windows)."""
-    char = msvcrt.getwche()
+    char = msvcrt.getwche()  # type: ignore[attr-defined]
     if char in ("\r", "\n"):
         sys.stdout.write("\n")
         return True
@@ -119,7 +119,7 @@ def _gestisci_carattere_input(current_str: str) -> str | bool:
             return current_str[:-1]
         sys.stdout.write(" ")
         return current_str
-    return current_str + char
+    return str(current_str + char)
 
 
 def _get_esito_styled(esito: str) -> str:

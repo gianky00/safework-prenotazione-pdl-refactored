@@ -174,7 +174,7 @@ class SafeWorkAutomator:
         except Exception:
             pass
 
-    def _controlla_e_solleva_timeout(self, by: str | By, val: str, context: str) -> None:
+    def _controlla_e_solleva_timeout(self, by: By | str, val: str, context: str) -> None:
         """Controlla se un elemento di timeout è visualizzato e solleva l'eccezione."""
         for el in self.driver.find_elements(by, val):
             if el.is_displayed():
