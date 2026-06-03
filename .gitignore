@@ -29,22 +29,29 @@ MANIFEST
 venv/
 ENV/
 
-# MyPy
+# MyPy & Ruff
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# Ruff
 .ruff_cache/
 
-# Excel & Process
-*.xlsx
-!parametri prenotazione pdl.xlsx
-automazione_pdl.log
+# IDEs
+.vscode/
+.idea/
+
+# DATA (Cartella centralizzata)
+# Ignoriamo tutto il contenuto di data perché contiene file generati o sensibili (Excel con password)
+data/
+# Ma permettiamo di tracciare i file .gitkeep se vuoi preservare la struttura delle cartelle vuote
+!data/**/.gitkeep
+
+# Vecchi percorsi (per sicurezza)
+*.log
+report_pdf/
 stato_processo_pdl.json
+test.db
 CRITICAL_EXECUTION_ERROR.txt
 
 # OS
 .DS_Store
 Thumbs.db
-prenotazione_pdl.log
