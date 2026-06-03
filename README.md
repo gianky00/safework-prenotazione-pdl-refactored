@@ -23,29 +23,29 @@ pip install -r requirements.txt
 ```
 
 ## 📖 Utilizzo
-L'entry point principale è `src/prenotazione_pdl/main.py`.
+L'entry point principale è `src/main.py`.
 
 ```bash
 # Esecuzione standard
-python src/prenotazione_pdl/main.py
+python src/main.py
 
 # Esecuzione in modalità simulazione (senza salvare sul sito)
-python src/prenotazione_pdl/main.py --dry-run
+python src/main.py --dry-run
 
 # Richiesta password interattiva (più sicuro)
-python src/prenotazione_pdl/main.py --secure
+python src/main.py --secure
 ```
 
 ## 💎 Qualità del Codice
-Per eseguire i controlli di qualità:
+Il progetto segue standard rigorosi. I controlli vengono eseguiti automaticamente ad ogni commit tramite **pre-commit**:
 
 ```bash
 # Linter e Formatter
 ruff check src
 ruff format src
 
-# Type checking
-mypy src
+# Type checking (Ottimizzato per Windows/Linux)
+python -m mypy src
 
 # Documentazione
 interrogate src
@@ -59,10 +59,15 @@ L'applicazione vanta un'interfaccia CLI moderna e professionale basata sulla lib
 - **Logging Avanzato**: Integrazione tra `Loguru` e `RichHandler` per log colorati e leggibili direttamente in console.
 
 ## 🏗️ Struttura Progetto
-- `src/prenotazione_pdl/`: Codice sorgente.
+- `src/`: Codice sorgente Python.
   - `automation/`: Driver Selenium e azioni sul portale.
   - `excel/`: Lettura parametri ed esecuzione macro.
-  - `config.py`: Costanti e selettori.
-  - `models.py`:strutture dati ed eccezioni.
+  - `utils/`: Gestione email e stampa professionale.
+  - `main.py`: Orchestratore principale.
+- `data/`: Archiviazione centralizzata.
+  - `logs/`: Storico esecuzioni gerarchico per data.
+  - `reports/`: PDF professionali generati.
+  - `database/`: Persistenza dati SQLite.
+  - `state/`: File di ripristino sessione.
+  - `parametri prenotazione pdl.xlsx`: Pannello di controllo Excel.
 - `tests/`: Suite di test (pytest).
-- `REFACTORING_PLAN.md`: Dettagli tecnici della rifattorizzazione.
