@@ -296,10 +296,14 @@ class PDLOrchestrator:
             enqueue=True
         )
 
-        self.config_path = os.path.join(Config.SCRIPT_DIR, Config.EXCEL_FILE_CONFIG_NAME)
+        self.config_path = Config.EXCEL_FILE_CONFIG_PATH
         self.excel = ExcelProcessor(self.config_path, prenotazione_oggi_per_oggi=self.today)
         self.driver_manager = WebDriverManager(headless=self.headless, start_maximized=True)
-        self.state = StateManager(os.path.join(Config.SCRIPT_DIR, Config.FILE_STATO_PROCESSO))
+
+        # Inizializzazione StateManager in data/state
+        os.makedirs(Config.STATE_DIR, exist_ok=True)
+        self.state = StateManager(os.path.join(Config.STATE_DIR, Config.FILE_STATO_PROCESSO))
+
         self.email = EmailManager()
         self.printer = PrinterManager(printer_name="NRG MP 3555 PCL 6")
 

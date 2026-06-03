@@ -18,7 +18,12 @@ class Config:
     SCRIPT_DIR: ClassVar[str] = BASE_DIRECTORY
     LOGS_DIR: ClassVar[str] = os.path.join(BASE_DIRECTORY, "data", "logs")
     REPORTS_DIR: ClassVar[str] = os.path.join(BASE_DIRECTORY, "data", "reports")
+    STATE_DIR: ClassVar[str] = os.path.join(BASE_DIRECTORY, "data", "state")
+    DB_DIR: ClassVar[str] = os.path.join(BASE_DIRECTORY, "data", "database")
+    
+    EXCEL_FILE_CONFIG_PATH: ClassVar[str] = os.path.join(BASE_DIRECTORY, "data", "parametri prenotazione pdl.xlsx")
     FILE_STATO_PROCESSO: ClassVar[str] = "stato_processo_pdl.json"
+    DB_FILE_PATH: ClassVar[str] = os.path.join(DB_DIR, "test.db")
     DEFAULT_URL_SITO: ClassVar[str] = "https://safework.isab.com/"
     EXCEL_FILE_CONFIG_NAME: ClassVar[str] = "parametri prenotazione pdl.xlsx"
 
