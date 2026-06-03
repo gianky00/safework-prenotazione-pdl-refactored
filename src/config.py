@@ -16,6 +16,7 @@ class Config:
 
     HEADLESS: ClassVar[bool] = True
     SCRIPT_DIR: ClassVar[str] = BASE_DIRECTORY
+    LOGS_DIR: ClassVar[str] = os.path.join(BASE_DIRECTORY, "data", "logs")
     FILE_STATO_PROCESSO: ClassVar[str] = "stato_processo_pdl.json"
     DEFAULT_URL_SITO: ClassVar[str] = "https://safework.isab.com/"
     EXCEL_FILE_CONFIG_NAME: ClassVar[str] = "parametri prenotazione pdl.xlsx"

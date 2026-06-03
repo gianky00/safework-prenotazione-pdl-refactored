@@ -268,6 +268,17 @@ class PDLOrchestrator:
         self.headless = headless
         self.today = today
 
+        # Determinazione del percorso log gerarchico
+        now = datetime.now()
+        log_dir = os.path.join(
+            Config.LOGS_DIR,
+            now.strftime("%Y"),
+            now.strftime("%m"),
+            now.strftime("%d")
+        )
+        os.makedirs(log_dir, exist_ok=True)
+        self.log_file = os.path.join(log_dir, f"prenotazione_pdl_{now.strftime('%H-%M-%S')}.log")
+
         # Configurazione Logger immediata
         logger.remove()
         logger.add(
@@ -276,10 +287,10 @@ class PDLOrchestrator:
             level="SUCCESS"
         )
         logger.add(
-            os.path.join(Config.SCRIPT_DIR, "prenotazione_pdl.log"),
+            self.log_file,
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
-            rotation="00:00",  # Opzionale: ruota a mezzanotte
-            mode="a",         # 'a' (append) per evitare di sovrascrivere ad ogni avvio e permettere rotazione
+            rotation="10 MB",  # Ruota se il file diventa troppo grande nello stesso giorno
+            mode="a",
             level="DEBUG",
             encoding="utf-8",
             enqueue=True
