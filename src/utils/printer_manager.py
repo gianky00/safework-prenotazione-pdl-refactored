@@ -155,7 +155,8 @@ class PrinterManager:
         elements.append(Spacer(1, 0.8 * cm))
 
         # --- 2. DASHBOARD DI RIEPILOGO ---
-        eseguite = sum(1 for p in pdl_list if "successo" in str(p.stato_script).lower())
+        success_keys = ["successo", "eseguita", "ok"]
+        eseguite = sum(1 for p in pdl_list if p.stato_script and any(k in str(p.stato_script).lower() for k in success_keys))
         gia_prenotate = sum(1 for p in pdl_list if "già prenotato" in str(p.stato_script).lower())
         errori = len(pdl_list) - eseguite - gia_prenotate
 

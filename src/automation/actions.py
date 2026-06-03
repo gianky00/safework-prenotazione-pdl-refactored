@@ -243,7 +243,7 @@ class SafeWorkAutomator:
 
         if self._is_element_present(Config.MSG_PDL_NON_TROVATO_SELECTORS):
             logger.info(f"PDL {data.pdl} non trovato nel sistema.")
-            return "Non Trovato"
+            return "Non Programmato"
 
         if self._is_element_present(Config.ICON_GIA_PRENOTATO_SELECTORS):
             logger.info(f"PDL {data.pdl} risulta già prenotato.")

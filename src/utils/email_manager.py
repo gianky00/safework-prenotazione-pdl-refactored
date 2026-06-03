@@ -27,7 +27,8 @@ class EmailManager:
         version_str = "SafeWork-PDL v2.1.0"
 
         # --- LOGICA CONTEGGI (Opzione B) ---
-        eseguite = sum(1 for p in pdl_list if "successo" in str(p.stato_script).lower())
+        success_keys = ["successo", "eseguita", "ok"]
+        eseguite = sum(1 for p in pdl_list if p.stato_script and any(k in str(p.stato_script).lower() for k in success_keys))
         gia_prenotate = sum(1 for p in pdl_list if "già prenotato" in str(p.stato_script).lower())
         errori = len(pdl_list) - eseguite - gia_prenotate
 

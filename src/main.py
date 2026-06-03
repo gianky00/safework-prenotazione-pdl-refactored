@@ -279,7 +279,7 @@ class PDLOrchestrator:
             os.path.join(Config.SCRIPT_DIR, "prenotazione_pdl.log"),
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
             rotation="00:00",  # Opzionale: ruota a mezzanotte
-            mode="w",         # 'w' sovrascrive il file esistente ad ogni apertura
+            mode="a",         # 'a' (append) per evitare di sovrascrivere ad ogni avvio e permettere rotazione
             level="DEBUG",
             encoding="utf-8",
             enqueue=True
