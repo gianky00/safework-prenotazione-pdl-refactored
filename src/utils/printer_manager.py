@@ -41,7 +41,7 @@ class PrinterManager:
             year_str = now.strftime("%Y")
             month_str = now.strftime("%m")
 
-            archive_dir = os.path.join(project_root, "report_pdf", year_str, month_str)
+            archive_dir = os.path.join(Config.REPORTS_DIR, year_str, month_str)
             os.makedirs(archive_dir, exist_ok=True)
 
             # Formato data richiesto: GG-MM-AAAA_HH-MM
