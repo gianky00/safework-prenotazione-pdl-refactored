@@ -64,6 +64,7 @@ if not WIN32COM_AVAILABLE:
 
 # --- Classe di Configurazione Interna ---
 class Config:
+    """Docstring automatica."""
     SCRIPT_DIR = ACTUAL_SCRIPT_DIRECTORY
     FILE_STATO_PROCESSO = "stato_processo_pdl.json"
     DEFAULT_URL_SITO = "https://safework.isab.com/"
@@ -153,23 +154,28 @@ class Config:
 
 # --- Custom Exceptions, Dataclass, WebDriverManager, ExcelProcessor ---
 class CriticalConfigError(Exception):
+    """Docstring automatica."""
     pass
 
 
 class ProcessInterruptedException(Exception):
+    """Docstring automatica."""
     pass
 
 
 class AutomationException(Exception):
+    """Docstring automatica."""
     pass
 
 
 class TimeoutAlertDetected(AutomationException):
+    """Docstring automatica."""
     pass
 
 
 @dataclass
 class PDLData:
+    """Docstring automatica."""
     riga_excel_debug: int
     pdl: str = ""
     area: str = "Area Non Specificata"
@@ -183,6 +189,7 @@ class PDLData:
 
 
 class WebDriverManager:
+    """Docstring automatica."""
     def __init__(self, headless: bool = True, start_maximized: bool = False) -> None:
         self.headless = headless
         self.start_maximized = start_maximized
@@ -190,6 +197,7 @@ class WebDriverManager:
         logger.info(f"WebDriverManager (headless={headless}, start_maximized={start_maximized})")
 
     def get_driver(self) -> webdriver.Chrome:
+        """Docstring automatica."""
         if self.driver and self._is_driver_alive():
             logger.debug("Restituisco driver esistente.")
             return self.driver
@@ -240,6 +248,7 @@ class WebDriverManager:
             return False
 
     def quit_driver(self) -> None:
+        """Docstring automatica."""
         if self.driver:
             try:
                 logger.info("Chiusura WebDriver.")
@@ -250,6 +259,7 @@ class WebDriverManager:
                 self.driver = None
 
     def restart_driver(self) -> webdriver.Chrome:
+        """Docstring automatica."""
         logger.info("Riavvio WebDriver.")
         self.quit_driver()
         time.sleep(Config.PAUSE_GENERAL_MEDIUM)
@@ -257,6 +267,7 @@ class WebDriverManager:
 
 
 class ExcelProcessor:
+    """Docstring automatica."""
     def __init__(self, config_file_path: str, data_file_path: str) -> None:
         self.config_file_path = config_file_path
         self.data_file_path = data_file_path
@@ -288,6 +299,7 @@ class ExcelProcessor:
             raise
 
     def get_website_url(self) -> str:
+        """Docstring automatica."""
         url = self._leggi_cella(self.config_file_path, Config.EXCEL_SHEET_PERCORSI, Config.CELLA_URL_SITO)
         if not url or not isinstance(url, str) or not url.startswith("http"):
             logger.warning(f"URL non valido ('{url}'). Fallback: {Config.DEFAULT_URL_SITO}")
@@ -296,6 +308,7 @@ class ExcelProcessor:
         return url
 
     def get_pdl_data_file_path(self) -> str:
+        """Docstring automatica."""
         path = self._leggi_cella(
             self.config_file_path, Config.EXCEL_SHEET_PERCORSI, Config.CELLA_PERCORSO_FILE_DATI_PDL
         )
@@ -308,6 +321,7 @@ class ExcelProcessor:
         return self.data_file_path
 
     def get_credentials(self, secure_pwd_in: bool) -> tuple[str, str]:
+        """Docstring automatica."""
         usr = self._leggi_cella(
             self.config_file_path, Config.EXCEL_SHEET_CREDENTIALS, Config.USERNAME_CELL_EXCEL
         )
@@ -382,6 +396,7 @@ class ExcelProcessor:
         return False
 
     def run_pdl_macros(self) -> bool:
+        """Docstring automatica."""
         logger.info("Esecuzione sequenza macro PdL.")
         if not self.data_file_path:
             self.get_pdl_data_file_path()
@@ -402,6 +417,7 @@ class ExcelProcessor:
         return True
 
     def get_pdl_list_from_excel(self) -> list[PDLData]:
+        """Docstring automatica."""
         logger.info(f"Lettura lista PdL da Excel: '{Config.NOME_FOGLIO_DATI_PDL}'.")
         if not self.data_file_path or not os.path.exists(self.data_file_path):
             logger.error(f"File dati '{self.data_file_path}' non trovato.")
@@ -447,6 +463,7 @@ class ExcelProcessor:
 
 # --- SafeWork Automator ---
 class SafeWorkAutomator:
+    """Docstring automatica."""
     def __init__(self, driver: webdriver.Chrome, dry_run: bool = False) -> None:
         self.driver = driver
         self.dry_run = dry_run
@@ -581,6 +598,7 @@ class SafeWorkAutomator:
             raise AutomationException(f"Interazione con '{f_name}' fallita.") from e
 
     def check_and_handle_specific_timeout_alert(self, op_ctx: str) -> None:
+        """Docstring automatica."""
         alert_els = []
         try:
             with contextlib.suppress(builtins.BaseException):
@@ -632,6 +650,7 @@ class SafeWorkAutomator:
         reraise=True,
     )
     def login(self, url: str, usr: str, pwd: str) -> None:
+        """Docstring automatica."""
         logger.info(f"Login a: {url} con utente: {usr}")
         if self.dry_run:
             logger.info(f"[DRY RUN] Login a {url}")
@@ -673,6 +692,7 @@ class SafeWorkAutomator:
         logger.info("Login completato.")
 
     def navigate_to_pdl_booking_page(self) -> None:
+        """Docstring automatica."""
         logger.info("Navigazione a pagina prenotazione PdL.")
         self._attendi_caricamento_pagina()
         self._click_element(Config.HOME_BUTTON_SELECTORS, "Pulsante Home")
@@ -697,6 +717,7 @@ class SafeWorkAutomator:
         logger.info("Pagina prenotazione PdL caricata.")
 
     def process_single_pdl(self, pdl_data: PDLData) -> str:
+        """Docstring automatica."""
         self.current_pdl_for_alert_context = pdl_data.pdl
         logger.info(f"Processo PdL: '{pdl_data.pdl}' (Area: '{pdl_data.area}')")
         self._pulisci_e_inserisci_testo(
@@ -741,11 +762,13 @@ class SafeWorkAutomator:
 
 # --- StateManager, PDLOrchestrator e __main__ ---
 class StateManager:
+    """Docstring automatica."""
     def __init__(self, file_path: str) -> None:
         self.file_path = file_path
         logger.info(f"StateManager per: {file_path}")
 
     def carica_stato(self) -> tuple[int, list[PDLData]]:
+        """Docstring automatica."""
         if os.path.exists(self.file_path):
             try:
                 with open(self.file_path, encoding="utf-8") as f:
@@ -770,6 +793,7 @@ class StateManager:
         return -1, []
 
     def salva_stato(self, idx: int, res: list[PDLData]) -> None:
+        """Docstring automatica."""
         res_s = [p.__dict__ for p in res]
         stato_s = {"ultimo_indice_pdl_processato": idx, "risultati_elaborazione_completi": res_s}
         try:
@@ -780,6 +804,7 @@ class StateManager:
             logger.error(f"Errore salvataggio stato '{self.file_path}': {e}", exc_info=True)
 
     def rimuovi_file_stato(self) -> None:
+        """Docstring automatica."""
         if os.path.exists(self.file_path):
             try:
                 os.remove(self.file_path)
@@ -789,6 +814,7 @@ class StateManager:
 
 
 class PDLOrchestrator:
+    """Docstring automatica."""
     def __init__(self, dry_run: bool = False, secure_password_input: bool = False) -> None:
         self.dry_run = dry_run
         self.secure_password_input = secure_password_input
@@ -822,6 +848,7 @@ class PDLOrchestrator:
         return pdl_excel
 
     def run(self) -> None:
+        """Docstring automatica."""
         logger.info(f"--- AVVIO PROCESSO (Dry Run: {self.dry_run}) ---")
         start_t = time.time()
         try:

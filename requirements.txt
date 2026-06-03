@@ -1,7 +1,0 @@
-selenium
-openpyxl
-tenacity
-pywin32
-loguru
-rich
-reportlab

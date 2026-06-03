@@ -15,6 +15,7 @@ tenacity = "^8.2.3"
 pywin32 = { version = "*", platform = "win32" }
 loguru = "*"
 rich = "*"
+reportlab = "^4.5.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
@@ -137,7 +138,7 @@ ignore-semiprivate = true
 ignore-private = true
 ignore-property-decorators = true
 ignore-module = true
-fail-under = 90
+fail-under = 100
 exclude = ["tests", "docs", "build", "dist"]
 verbose = 1
 quiet = false

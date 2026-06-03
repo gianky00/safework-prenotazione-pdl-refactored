@@ -14,6 +14,7 @@ from src.utils.printer_manager import PrinterManager
 
 
 def test_layout():
+    """Esegue il test di stampa del layout PDF."""
     logger.info("Avvio TEST LAYOUT PDF (Senza stampa fisica)...")
 
     # 1. Creazione dati di test (fittizi e variati per testare il layout)
