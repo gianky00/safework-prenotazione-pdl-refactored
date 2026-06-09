@@ -11,8 +11,17 @@ from reportlab.lib import colors  # type: ignore
 from reportlab.lib.pagesizes import A4  # type: ignore
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet  # type: ignore
 from reportlab.lib.units import cm  # type: ignore
-from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle  # type: ignore
+from reportlab.platypus import (  # type: ignore
+    Image,
+    KeepTogether,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
+from ..config import Config
 from .email_manager import PDLData
 
 
@@ -91,7 +100,7 @@ class PrinterManager:
             logger.error(f"Errore durante l'archiviazione/stampa PDF: {e}")
             return False
 
-    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:  # noqa: PLR0915
+    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:  # noqa: PLR0915, C901
         """Costruisce il layout del PDF professionale in bianco e nero."""
         max_status_len = 30
         doc = SimpleDocTemplate(
@@ -134,9 +143,9 @@ class PrinterManager:
             img = Image(logo_path, width=2.5 * cm, height=2.5 * cm)
             # La cella sinistra contiene Logo + Spacer + Disclaimer
             left_cell = [img, Spacer(1, 0.3 * cm), Paragraph(disclaimer_text, disclaimer_style)]
-            header_data = [[left_cell, Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{now.strftime('%d%m%Y')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
+            header_data = [[left_cell, Paragraph(f"<b>REPORT PRENOTAZIONE PDL - ISAB SUD</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{now.strftime('%d%m%Y')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
         else:
-            header_data = [[Paragraph(f"<b>COEMI S.R.L.</b><br/><font size='6'>{disclaimer_text}</font>", styles['Normal']), Paragraph(f"<b>REPORT PRENOTAZIONE PDL</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{now.strftime('%d%m%Y')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
+            header_data = [[Paragraph(f"<b>COEMI S.R.L.</b><br/><font size='6'>{disclaimer_text}</font>", styles['Normal']), Paragraph(f"<b>REPORT PRENOTAZIONE PDL - ISAB SUD</b><br/>Generato il: {now_str}<br/>Rif: SAF-PRN-{now.strftime('%d%m%Y')}<br/>Sistema: SafeWork-PDL v2.1.0", meta_style)]]
 
         header_table = Table(header_data, colWidths=[8 * cm, 10 * cm])
         header_table.setStyle(TableStyle([
@@ -155,6 +164,7 @@ class PrinterManager:
         elements.append(Spacer(1, 0.8 * cm))
 
         # --- 2. DASHBOARD DI RIEPILOGO ---
+        elements.append(Paragraph("<b>RIEPILOGO STATO ELABORAZIONE</b>", ParagraphStyle('DashboardTitle', fontSize=12, spaceAfter=12, alignment=1)))
         success_keys = ["successo", "eseguita", "ok"]
         eseguite = sum(1 for p in pdl_list if p.stato_script and any(k in str(p.stato_script).lower() for k in success_keys))
         gia_prenotate = sum(1 for p in pdl_list if "già prenotato" in str(p.stato_script).lower())
@@ -165,7 +175,7 @@ class PrinterManager:
 
         dash_data = [
             [Paragraph("TOTALE PDL", dash_style_label),
-             Paragraph("ESEGUITE OGGI", dash_style_label),
+             Paragraph("ESEGUITE", dash_style_label),
              Paragraph("GIÀ PRENOTATE", dash_style_label),
              Paragraph("NON ESEGUITE", dash_style_label)],
             [Paragraph(str(len(pdl_list)), dash_style_value),
@@ -199,15 +209,23 @@ class PrinterManager:
         # Ordinamento alfabetico delle aree per un report consistente
         sorted_areas = sorted(areas.keys())
 
+        desc_style = ParagraphStyle('DescStyle', parent=styles['Normal'], fontSize=8, leading=10, alignment=1)
+
         for area_name in sorted_areas:
+            area_elements = []
+
             # Titolo Sezione Area
-            elements.append(Paragraph(f"{area_name}", ParagraphStyle('AreaHeader', fontSize=10, fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=6, leftIndent=0)))
+            area_elements.append(Paragraph(f"{area_name}", ParagraphStyle('AreaHeader', fontSize=10, fontName='Helvetica-Bold', spaceBefore=10, spaceAfter=6, leftIndent=0)))
 
             # Intestazioni tabella per questa Area
-            data = [['PdL', 'Impianto', 'Orario Prenotazione', 'Stato Esito']]
+            data = [['PdL', 'Impianto', 'Descrizione attività', 'Orario Prenotazione', 'Stato Esito']]
 
             for pdl in areas[area_name]:
                 tempo_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
+                if tempo_pulito != "-" and ":" in tempo_pulito:
+                    parts = tempo_pulito.split(":")
+                    if len(parts) > 1:
+                        tempo_pulito = f"{parts[0]}:{parts[1]}"
                 stato = str(pdl.stato_script)
                 if len(stato) > max_status_len:
                     stato = stato[:max_status_len - 3] + "..."
@@ -215,12 +233,13 @@ class PrinterManager:
                 data.append([
                     Paragraph(f"<b>{pdl.pdl}</b>", styles['Normal']),
                     str(pdl.impianto),
+                    Paragraph(str(pdl.descrizione), desc_style),
                     tempo_pulito,
                     Paragraph(f"<i>{stato}</i>", styles['Normal'])
                 ])
 
             # Creazione Tabella per l'Area corrente
-            col_widths = [3.5 * cm, 5.5 * cm, 4.5 * cm, 4.5 * cm]
+            col_widths = [3.0 * cm, 4.0 * cm, 5.0 * cm, 3.0 * cm, 3.0 * cm]
             table = Table(data, colWidths=col_widths, repeatRows=1)
 
             # Stile Tabella (Moderno B/N)
@@ -250,8 +269,10 @@ class PrinterManager:
                     current_table_style.add('BACKGROUND', (0, i), (-1, i), colors.whitesmoke)
 
             table.setStyle(current_table_style)
-            elements.append(table)
-            elements.append(Spacer(1, 0.6 * cm))
+            area_elements.append(table)
+            area_elements.append(Spacer(1, 0.6 * cm))
+
+            elements.append(KeepTogether(area_elements))
 
         # Salvataggio con numerazione pagine dinamica
         doc.build(elements, onFirstPage=self._add_footer, onLaterPages=self._add_footer)

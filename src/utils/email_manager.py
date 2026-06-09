@@ -49,6 +49,10 @@ class EmailManager:
             for i, pdl in enumerate(areas[area_name]):
                 bg_color = "#f9f9f9" if i % 2 != 0 else "#ffffff"
                 orario_pulito = str(pdl.tempo_rimanente or "-").split('(')[0].strip()
+                if orario_pulito != "-" and ":" in orario_pulito:
+                    parts = orario_pulito.split(":")
+                    if len(parts) > 1:
+                        orario_pulito = f"{parts[0]}:{parts[1]}"
                 stato = str(pdl.stato_script)
                 if len(stato) > max_status_len:
                     stato = stato[:max_status_len - 3] + "..."
@@ -57,6 +61,7 @@ class EmailManager:
                 <tr style="background-color: {bg_color}; text-align: center;">
                     <td style="padding: 10px; border-bottom: 1px solid #eee;"><b>{pdl.pdl}</b></td>
                     <td style="padding: 10px; border-bottom: 1px solid #eee;">{pdl.impianto}</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #eee; max-width: 150px; word-wrap: break-word;">{pdl.descrizione}</td>
                     <td style="padding: 10px; border-bottom: 1px solid #eee;">{orario_pulito}</td>
                     <td style="padding: 10px; border-bottom: 1px solid #eee;"><i>{stato}</i></td>
                 </tr>
@@ -70,6 +75,7 @@ class EmailManager:
                         <tr style="background-color: #000000; color: #ffffff;">
                             <th style="padding: 10px; border: 1px solid #000;">PdL</th>
                             <th style="padding: 10px; border: 1px solid #000;">Impianto</th>
+                            <th style="padding: 10px; border: 1px solid #000;">Descrizione attività</th>
                             <th style="padding: 10px; border: 1px solid #000;">Orario Prenotazione</th>
                             <th style="padding: 10px; border: 1px solid #000;">Stato Esito</th>
                         </tr>
@@ -97,7 +103,7 @@ class EmailManager:
                         </p>
                     </td>
                     <td style="width: 50%; text-align: right; vertical-align: middle; color: #888; font-size: 11px;">
-                        <b style="color: #333; font-size: 13px;">REPORT PRENOTAZIONE PDL</b><br/>
+                        <b style="color: #333; font-size: 13px;">REPORT PRENOTAZIONE PDL - ISAB SUD</b><br/>
                         Generato il: {now_str}<br/>
                         Rif: {rif_str}<br/>
                         Sistema: {version_str}
@@ -106,6 +112,7 @@ class EmailManager:
             </table>
 
             <!-- DASHBOARD -->
+            <h3 style="border-left: 4px solid #000; padding-left: 10px; margin-bottom: 20px; font-size: 16px;">RIEPILOGO STATO ELABORAZIONE</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; text-align: center;">
                 <tr>
                     <td style="width: 25%; padding: 15px; background-color: #f4f4f4; border: 1px solid #ddd;">
@@ -113,7 +120,7 @@ class EmailManager:
                         <div style="font-size: 20px; font-weight: bold; color: #000;">{len(pdl_list)}</div>
                     </td>
                     <td style="width: 25%; padding: 15px; background-color: #f4f4f4; border: 1px solid #ddd;">
-                        <div style="font-size: 10px; color: #888; text-transform: uppercase;">Eseguite Oggi</div>
+                        <div style="font-size: 10px; color: #888; text-transform: uppercase;">Eseguite</div>
                         <div style="font-size: 20px; font-weight: bold; color: #000;">{eseguite}</div>
                     </td>
                     <td style="width: 25%; padding: 15px; background-color: #f4f4f4; border: 1px solid #ddd;">
