@@ -14,6 +14,7 @@ from reportlab.lib.units import cm  # type: ignore
 from reportlab.platypus import (  # type: ignore
     Image,
     KeepTogether,
+    PageBreak,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -100,7 +101,7 @@ class PrinterManager:
             logger.error(f"Errore durante l'archiviazione/stampa PDF: {e}")
             return False
 
-    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:  # noqa: PLR0915, C901
+    def _generate_pdf(self, pdl_list: list[PDLData], file_path: str, project_root: str, now: datetime) -> None:  # noqa: PLR0915, C901, PLR0912
         """Costruisce il layout del PDF professionale in bianco e nero."""
         max_status_len = 30
         doc = SimpleDocTemplate(
@@ -211,6 +212,8 @@ class PrinterManager:
 
         desc_style = ParagraphStyle('DescStyle', parent=styles['Normal'], fontSize=8, leading=10, alignment=1)
 
+        blocks_data: list[dict[str, Any]] = []
+
         for area_name in sorted_areas:
             area_elements = []
 
@@ -272,7 +275,43 @@ class PrinterManager:
             area_elements.append(table)
             area_elements.append(Spacer(1, 0.6 * cm))
 
-            elements.append(KeepTogether(area_elements))
+            kt = KeepTogether(area_elements)
+            blocks_data.append({'name': area_name, 'flowable': kt, 'area_elements': area_elements, 'placed': False})
+
+        # --- 4. ALGORITMO DI IMPAGINAZIONE INTELLIGENTE ---
+        # Misuriamo l'altezza occupata fino ad ora nella prima pagina
+        avail_width = A4[0] - 3.0 * cm
+        avail_height_full = A4[1] - 2.4 * cm
+
+        consumed_height = 0
+        for el in elements:
+            _, h = el.wrap(avail_width, avail_height_full)
+            consumed_height += h
+
+        remaining_height = avail_height_full - consumed_height
+
+        # Pre-calcolo delle altezze di ciascun blocco
+        for b in blocks_data:
+            h_total = 0
+            for child in b['area_elements']:
+                _, h = child.wrap(avail_width, avail_height_full)
+                h_total += h
+            b['h'] = h_total
+
+        # Allocazione First-Fit
+        while any(not b['placed'] for b in blocks_data):
+            placed_in_this_pass = False
+            for b in blocks_data:
+                if not b['placed'] and b['h'] <= remaining_height:
+                    elements.append(b['flowable'])
+                    b['placed'] = True
+                    remaining_height -= b['h']
+                    placed_in_this_pass = True
+
+            # Se nessun blocco rimasto ci sta nello spazio corrente, forza PageBreak
+            if not placed_in_this_pass and any(not b['placed'] for b in blocks_data):
+                elements.append(PageBreak())
+                remaining_height = avail_height_full
 
         # Salvataggio con numerazione pagine dinamica
         doc.build(elements, onFirstPage=self._add_footer, onLaterPages=self._add_footer)
